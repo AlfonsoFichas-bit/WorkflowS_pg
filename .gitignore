@@ -12,3 +12,28 @@ node_modules/
 
 # vscode
 .vscode/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+
+# Build artifacts
+dist/
+build/
+
+# Cache directories
+.cache/
+.npm/
+.deno/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+.zencoder
+WorkflowSP

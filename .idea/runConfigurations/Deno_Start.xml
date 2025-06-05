@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Deno Start" type="DenoConfigurationType" inputPath="start" programParameters="task">
+    <method v="2" />
+  </configuration>
+</component>

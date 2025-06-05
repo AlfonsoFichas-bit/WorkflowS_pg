@@ -1,0 +1,145 @@
+import { drizzle } from "drizzle-orm/node-postgres";
+import { 
+  users, 
+  projects, 
+  teams, 
+  teamMembers, 
+  sprints, 
+  tasks, 
+  comments, 
+  evaluations 
+} from "./schema.ts";
+import { 
+  usersRelations, 
+  projectsRelations, 
+  teamsRelations, 
+  teamMembersRelations, 
+  sprintsRelations, 
+  tasksRelations, 
+  commentsRelations, 
+  evaluationsRelations 
+} from "./relations.ts";
+import pg from "pg";
+import { eq } from "drizzle-orm";
+
+const { Pool } = pg;
+
+// Crear el pool de conexiones
+const pool = new Pool({
+  connectionString: Deno.env.get("DATABASE_URL"),
+});
+
+// Crear la instancia de drizzle
+export const db = drizzle(pool, {
+  schema: {
+    users,
+    projects,
+    teams,
+    teamMembers,
+    sprints,
+    tasks,
+    comments,
+    evaluations,
+    usersRelations,
+    projectsRelations,
+    teamsRelations,
+    teamMembersRelations,
+    sprintsRelations,
+    tasksRelations,
+    commentsRelations,
+    evaluationsRelations
+  },
+});
+
+// Servicios de usuario
+export async function createUser(userData: Omit<typeof users.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  return await db.insert(users).values(userData).returning();
+}
+
+export async function getUserById(id: number) {
+  return await db.select().from(users).where(eq(users.id, id)).limit(1);
+}
+
+export async function getUserByEmail(email: string) {
+  return await db.select().from(users).where(eq(users.email, email));
+}
+
+export async function getAllUsers() {
+  return await db.select().from(users);
+}
+
+export async function updateUser(id: number, userData: Partial<Omit<typeof users.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
+  return await db.update(users)
+    .set({
+      ...userData,
+      updatedAt: new Date()
+    })
+    .where(eq(users.id, id))
+    .returning();
+}
+
+export async function deleteUser(id: number) {
+  return await db.delete(users)
+    .where(eq(users.id, id))
+    .returning();
+}
+
+// Servicios de proyecto
+export async function createProject(projectData: Omit<typeof projects.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  return await db.insert(projects).values(projectData).returning();
+}
+
+export async function getProjectById(id: number) {
+  return await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+}
+
+export async function getAllProjects() {
+  return await db.select().from(projects);
+}
+
+export async function getProjectsByOwnerId(ownerId: number) {
+  return await db.select().from(projects).where(eq(projects.ownerId, ownerId));
+}
+
+export async function updateProject(id: number, projectData: Partial<Omit<typeof projects.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
+  return await db.update(projects).set({
+    ...projectData,
+    updatedAt: new Date()
+  }).where(eq(projects.id, id)).returning();
+}
+
+export async function deleteProject(id: number) {
+  return await db.delete(projects).where(eq(projects.id, id)).returning();
+}
+
+// Servicios de tarea
+export async function createTask(taskData: Omit<typeof tasks.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  return await db.insert(tasks).values(taskData).returning();
+}
+
+export async function getTaskById(id: number) {
+  return await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+}
+
+export async function getTasksBySprintId(sprintId: number) {
+  return await db.select().from(tasks).where(eq(tasks.sprintId, sprintId));
+}
+
+export async function getTasksByAssigneeId(assigneeId: number) {
+  return await db.select().from(tasks).where(eq(tasks.assigneeId, assigneeId));
+}
+
+export async function getAllTasks() {
+  return await db.select().from(tasks);
+}
+
+export async function updateTask(id: number, taskData: Partial<Omit<typeof tasks.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
+  return await db.update(tasks).set({
+    ...taskData,
+    updatedAt: new Date()
+  }).where(eq(tasks.id, id)).returning();
+}
+
+export async function deleteTask(id: number) {
+  return await db.delete(tasks).where(eq(tasks.id, id)).returning();
+}

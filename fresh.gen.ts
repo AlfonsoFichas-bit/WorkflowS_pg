@@ -5,9 +5,25 @@
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $api_joke from "./routes/api/joke.ts";
+import * as $auth_login from "./routes/auth/login.tsx";
+import * as $auth_logout from "./routes/auth/logout.ts";
+import * as $auth_register from "./routes/auth/register.tsx";
+import * as $dashboard from "./routes/dashboard.tsx";
+import * as $dashboard_middleware from "./routes/dashboard/_middleware.ts";
+import * as $dashboard_icons from "./routes/dashboard/icons.tsx";
+import * as $dashboard_index from "./routes/dashboard/index.tsx";
+import * as $dashboard_projects from "./routes/dashboard/projects.tsx";
+import * as $dashboard_tasks from "./routes/dashboard/tasks.tsx";
+import * as $dashboard_team from "./routes/dashboard/team.tsx";
+import * as $dashboard_users from "./routes/dashboard/users.tsx";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
+import * as $CreateUserFormIsland from "./islands/CreateUserFormIsland.tsx";
+import * as $ModalIsland from "./islands/ModalIsland.tsx";
+import * as $SidebarIsland from "./islands/SidebarIsland.tsx";
+import * as $ThemeSwitchIsland from "./islands/ThemeSwitchIsland.tsx";
+import * as $UsersPageIsland from "./islands/UsersPageIsland.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -15,11 +31,27 @@ const manifest = {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/api/joke.ts": $api_joke,
+    "./routes/auth/login.tsx": $auth_login,
+    "./routes/auth/logout.ts": $auth_logout,
+    "./routes/auth/register.tsx": $auth_register,
+    "./routes/dashboard.tsx": $dashboard,
+    "./routes/dashboard/_middleware.ts": $dashboard_middleware,
+    "./routes/dashboard/icons.tsx": $dashboard_icons,
+    "./routes/dashboard/index.tsx": $dashboard_index,
+    "./routes/dashboard/projects.tsx": $dashboard_projects,
+    "./routes/dashboard/tasks.tsx": $dashboard_tasks,
+    "./routes/dashboard/team.tsx": $dashboard_team,
+    "./routes/dashboard/users.tsx": $dashboard_users,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
+    "./islands/CreateUserFormIsland.tsx": $CreateUserFormIsland,
+    "./islands/ModalIsland.tsx": $ModalIsland,
+    "./islands/SidebarIsland.tsx": $SidebarIsland,
+    "./islands/ThemeSwitchIsland.tsx": $ThemeSwitchIsland,
+    "./islands/UsersPageIsland.tsx": $UsersPageIsland,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
