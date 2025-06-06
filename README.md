@@ -1,73 +1,177 @@
-# WorkflowS Platform
+# Plataforma Workflow
 
-A workflow management platform for academic projects using Scrum methodology. This platform allows teachers to track student progress and students to manage their projects using agile methodologies.
+Una plataforma de gestión del flujo de trabajo para proyectos académicos utilizando la metodología Scrum. Esta plataforma permite que los profesores rastreen el progreso estudiantil y que los estudiantes gestionen sus proyectos usando metodologías ágiles.
 
-## Technology Stack
+## Desglose Tecnológico
 
 - **Runtime**: [Deno](https://deno.land/)
-- **Web Framework**: [Fresh](https://fresh.deno.dev/)
-- **Database**: PostgreSQL
+- **Framework Web**: [Fresh](https://fresh.deno.dev/)
+- **Base de Datos**: PostgreSQL
 - **ORM**: [Drizzle ORM](https://orm.drizzle.team/)
 - **UI**: Tailwind CSS
 
-## Project Structure
+## Estructura del Proyecto
 
 ```
 WorkflowS_pg/
-├── components/       # Reusable UI components
-├── islands/          # Interactive components (client-side)
-├── routes/           # Application routes and API endpoints
-│   ├── api/          # API endpoints
-│   └── ...           # Page routes
-├── src/              # Application source code
-│   ├── config/       # Configuration files
-│   ├── db/           # Database related code
-│   │   ├── migrations/  # Database migrations
-│   │   └── schema/   # Database schema definitions
-│   ├── middleware/   # Middleware functions
-│   ├── models/       # Business logic models
-│   ├── services/     # Service layer
-│   ├── types/        # TypeScript type definitions
-│   └── utils/        # Utility functions
-├── static/           # Static assets
-├── .env.example      # Example environment variables
-├── deno.json         # Deno configuration
-├── drizzle.config.ts # Drizzle ORM configuration
-├── fresh.config.ts   # Fresh framework configuration
-└── tailwind.config.ts # Tailwind CSS configuration
+├── components/       # Componentes reutilizables de la interfaz
+├── islands/          # Componentes interactivos (lado del cliente)
+├── routes/           # Rutas de la aplicación y puntos finales de la API
+│   ├── api/          # Puntos finales de la API
+│   └── ...           # Rutas de las páginas
+├── src/              # Código fuente de la aplicación
+│   ├── config/       # Archivos de configuración
+│   ├── db/           # Código relacionado con la base de datos
+│   │   ├── migrations/  # Migraciones de la base de datos
+│   │   └── schema/   # Definiciones del esquema de la base de datos
+│   ├── middleware/   # Funciones middleware
+│   ├── models/       # Modelos de lógica de negocio
+│   ├── services/     # Capa de servicio
+│   ├── types/        # Definiciones de tipos de TypeScript
+│   └── utils/        # Funciones utilitarias
+├── static/           # Recursos estáticos
+├── .env.example      # Ejemplo de variables de entorno
+├── deno.json         # Configuración de Deno
+├── drizzle.config.ts # Configuración de Drizzle ORM
+├── fresh.config.ts   # Configuración del framework Fresh
+└── tailwind.config.ts # Configuración de Tailwind CSS
 ```
 
-## Getting Started
+## Primeros Pasos
 
-1. Make sure to install Deno: https://deno.land/manual/getting_started/installation
+1. Asegúrate de instalar Deno: https://deno.land/manual/getting_started/installation
 
-2. Clone the repository:
+2. Clona el repositorio:
    ```
    git clone <repository-url>
    cd WorkflowS_pg
    ```
 
-3. Copy the environment example file and configure it:
+3. Copia el archivo de ejemplo de entorno y configúralo:
    ```
    cp .env.example .env
    ```
-   Edit the `.env` file with your database credentials.
+   Edita el archivo `.env` con tus credenciales de base de datos.
 
-4. Start the development server:
+4. Inicia el servidor de desarrollo:
    ```
    deno task start
    ```
 
-This will watch the project directory and restart as necessary.
+Esto vigilará el directorio del proyecto y se reiniciará según sea necesario.
 
-## Database Setup
+## Configuración de la Base de Datos
 
-The project uses PostgreSQL with Drizzle ORM. Database setup instructions will be added when the ORM implementation is complete.
+El proyecto utiliza PostgreSQL con Drizzle ORM. Se agregarán instrucciones de configuración de la base de datos cuando se complete la implementación del ORM.
 
-## Project Features
+## Características del Proyecto
 
-- Project management with Scrum methodology
-- Sprint planning and tracking
-- Task management with Kanban boards
-- Metrics and reporting for teachers
-- Role-based access control
+- Gestión de proyectos con la metodología Scrum
+- Planificación y seguimiento de sprints
+- Gestión de tareas con tableros Kanban
+- Métricas e informes para profesores
+- Control de acceso basado en roles
+
+## Estructura del proyecto (Actualizado)
+
+```
+├── biome.json
+├── components
+│   ├── Button.tsx
+│   ├── DashboardLayout.tsx
+│   ├── MaterialSymbol.tsx
+│   └── Modal.tsx
+├── deno.json
+├── dev.ts
+├── docs
+│   ├── Build a Database App with Drizzle ORM and Deno.md
+│   └── GuiaMaterialSymbols.md
+├── drizzle
+│   ├── 0000_amazing_xorn.sql
+│   ├── 0001_oval_oracle.sql
+│   └── meta
+│       ├── 0000_snapshot.json
+│       ├── 0001_snapshot.json
+│       └── _journal.json
+├── drizzle.config.ts
+├── fresh.config.ts
+├── fresh.gen.ts
+├── islands
+│   ├── Counter.tsx
+│   ├── CreateUserFormIsland.tsx
+│   ├── ModalIsland.tsx
+│   ├── SidebarIsland.tsx
+│   ├── ThemeSwitchIsland.tsx
+│   └── UsersPageIsland.tsx
+├── main_test.ts
+├── main.ts
+├── README.md
+├── routes
+│   ├── _404.tsx
+│   ├── api
+│   │   └── joke.ts
+│   ├── _app.tsx
+│   ├── auth
+│   │   ├── login.tsx
+│   │   ├── logout.ts
+│   │   └── register.tsx
+│   ├── dashboard
+│   │   ├── icons.tsx
+│   │   ├── index.tsx
+│   │   ├── _middleware.ts
+│   │   ├── projects.tsx
+│   │   ├── tasks.tsx
+│   │   ├── team.tsx
+│   │   ├── users
+│   │   │   └── [id].tsx
+│   │   └── users.tsx
+│   ├── dashboard.tsx
+│   ├── greet
+│   │   └── [name].tsx
+│   └── index.tsx
+├── src
+│   ├── config
+│   │   └── database.ts
+│   ├── db
+│   │   ├── db.ts
+│   │   ├── drop-tables.ts
+│   │   ├── index.ts
+│   │   ├── init.ts
+│   │   ├── migrate.ts
+│   │   ├── relations.ts
+│   │   ├── schema
+│   │   │   ├── comments.ts
+│   │   │   ├── evaluations.ts
+│   │   │   ├── index.ts
+│   │   │   ├── projects.ts
+│   │   │   ├── sprints.ts
+│   │   │   ├── tasks.ts
+│   │   │   ├── teamMembers.ts
+│   │   │   ├── teams.ts
+│   │   │   └── users.ts
+│   │   └── schema.ts.bak
+│   ├── middleware
+│   │   └── README.md
+│   ├── models
+│   │   └── README.md
+│   ├── script.ts
+│   ├── services
+│   │   └── README.md
+│   ├── types
+│   │   └── index.ts
+│   └── utils
+│       └── env.ts
+├── static
+│   ├── favicon.ico
+│   ├── logo.svg
+│   ├── styles.css
+│   └── theme.js
+├── tailwind.config.ts
+└── utils
+    ├── auth.ts
+    ├── db.ts
+    ├── hooks.ts
+    └── theme-types.ts
+
+22 directories, 75 files
+```

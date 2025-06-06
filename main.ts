@@ -10,9 +10,12 @@ import { start } from "$fresh/server.ts";
 import manifest from "./fresh.gen.ts";
 import config from "./fresh.config.ts";
 import { initDatabase, closeDatabase } from "./utils/db.ts";
+import { initializeAdminUser } from "./src/db/init.ts";
 
 // Inicializar la conexión a la base de datos
 await initDatabase();
+// Crear el usuario administrador si no existe
+await initializeAdminUser();
 
 // Registrar un manejador para cerrar la conexión a la base de datos cuando la aplicación se cierre
 Deno.addSignalListener("SIGINT", async () => {
