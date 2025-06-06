@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { JSX } from "preact";
+import type { JSX } from "preact";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 
 interface CreateUserFormProps {
@@ -87,7 +87,7 @@ export default function CreateUserFormIsland({
             required
             value={name}
             onChange={(e) => setName((e.target as HTMLInputElement).value)}
-            className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+            className={`block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
               errors.name ? "border-red-500" : ""
             }`}
           />
@@ -113,7 +113,7 @@ export default function CreateUserFormIsland({
             required
             value={email}
             onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
-            className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+            className={`block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
               errors.email ? "border-red-500" : ""
             }`}
           />
@@ -139,7 +139,7 @@ export default function CreateUserFormIsland({
             required
             value={password}
             onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
-            className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+            className={`block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
               errors.password ? "border-red-500" : ""
             }`}
           />
@@ -177,7 +177,7 @@ export default function CreateUserFormIsland({
             onChange={(e) =>
               setConfirmPassword((e.target as HTMLInputElement).value)
             }
-            className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+            className={`block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
               errors.confirmPassword ? "border-red-500" : ""
             }`}
           />
@@ -197,18 +197,10 @@ export default function CreateUserFormIsland({
           Rol
         </label>
         <div className="mt-1">
-          <select
-            id="role"
-            name="role"
-            value={role}
-            onChange={(e) => setRole((e.target as HTMLSelectElement).value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
-            <option value="admin">Administrador</option>
-            <option value="scrum_master">Scrum Master</option>
-            <option value="product_owner">Product Owner</option>
-            <option value="team_developer">Team Developer</option>
-          </select>
+          <div className="block w-full p-2.5 rounded-md border-gray-300 shadow-sm sm:text-sm bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+            Team Developer
+          </div>
+          <input type="hidden" name="role" value="team_developer" />
         </div>
       </div>
 
