@@ -30,3 +30,4 @@ async function main() {
 
 // Ejecutar la función principal
 await main();
+export default main;
