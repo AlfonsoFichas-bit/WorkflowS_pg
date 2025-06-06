@@ -134,7 +134,6 @@ export default function AddUserToProjectIsland({
             }`}
           >
             <option value="team_member">Miembro del Equipo</option>
-            <option value="team_leader">Líder de Equipo</option>
             <option value="product_owner">Product Owner</option>
             <option value="scrum_master">Scrum Master</option>
           </select>
