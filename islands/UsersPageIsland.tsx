@@ -8,7 +8,11 @@ interface User {
   name: string;
   email: string;
   role: string;
-  createdAt: Date;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  paternalLastName: string | null;
+  maternalLastName: string | null;
+  password: string;
 }
 
 interface UsersPageIslandProps {
@@ -51,8 +55,8 @@ export default function UsersPageIsland(
         },
         body: JSON.stringify({
           name: userData.name,
-          paternal_last_name: userData.paternalLastName,
-          maternal_last_name: userData.maternalLastName,
+          paternalLastName: userData.paternalLastName,
+          maternalLastName: userData.maternalLastName,
           email: userData.email,
           password: userData.password,
           role: userData.role,
@@ -105,8 +109,11 @@ export default function UsersPageIsland(
       setUserToDelete(null);
 
       // Recargar la página para actualizar la lista de usuarios
+      // Usamos un enfoque más seguro para recargar la página
       setTimeout(() => {
-        window.location.reload();
+        if (typeof window !== "undefined") {
+          window.location.href = "/dashboard/users";
+        }
       }, 1000);
     } catch (error: unknown) {
       console.error("Error:", error);
@@ -132,7 +139,8 @@ export default function UsersPageIsland(
     return roleMap[role] || role;
   };
 
-  const formatDate = (date: Date): string => {
+  const formatDate = (date: Date | null): string => {
+    if (!date) return "N/A";
     return new Date(date).toLocaleDateString("es-ES", {
       year: "numeric",
       month: "long",

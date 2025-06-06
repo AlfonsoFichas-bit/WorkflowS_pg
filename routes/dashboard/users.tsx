@@ -1,6 +1,7 @@
 import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { createUser, getAllUsers, deleteUser } from "../../utils/db.ts";
+import { State } from "./_middleware.ts";
+import { createUser, getAllUsers, deleteUser, deleteTeamMembersByUserId } from "../../utils/db.ts";
 import UsersPageIsland from "../../islands/UsersPageIsland.tsx";
 
 interface User {
@@ -8,7 +9,11 @@ interface User {
   name: string;
   email: string;
   role: string;
-  createdAt: Date;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  paternalLastName: string | null;
+  maternalLastName: string | null;
+  password: string;
 }
 
 interface UsersData {
@@ -22,7 +27,7 @@ interface UsersData {
   usersList: User[];
 }
 
-export const handler: Handlers<UsersData> = {
+export const handler: Handlers<UsersData, State> = {
   async GET(_req, ctx) {
     // El middleware ya ha verificado la autenticación y ha añadido el usuario al estado
     
@@ -46,7 +51,7 @@ export const handler: Handlers<UsersData> = {
     
     try {
       const formData = await req.json();
-      const { name, email, password, role, paternal_last_name, maternal_last_name } = formData;
+      const { name, email, password, role, paternalLastName, maternalLastName } = formData;
       
       // Crear el usuario utilizando la función del servicio
       await createUser({
@@ -54,8 +59,8 @@ export const handler: Handlers<UsersData> = {
         email,
         password,
         role,
-        paternal_last_name: paternal_last_name || "", // Usar el valor proporcionado o cadena vacía
-        maternal_last_name: maternal_last_name || "", // Usar el valor proporcionado o cadena vacía
+        paternalLastName: paternalLastName || "", // Usar el valor proporcionado o cadena vacía
+        maternalLastName: maternalLastName || "", // Usar el valor proporcionado o cadena vacía
       });
       
       return new Response(JSON.stringify({ success: true }), {
@@ -66,7 +71,7 @@ export const handler: Handlers<UsersData> = {
       console.error("Error al crear usuario:", error);
       
       // Si el error es que el usuario ya existe, devolver un mensaje específico
-      if (error.message === "User with this email already exists") {
+      if (error instanceof Error && error.message === "User with this email already exists") {
         return new Response(JSON.stringify({ error: "El correo electrónico ya está registrado" }), {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -82,7 +87,7 @@ export const handler: Handlers<UsersData> = {
 };
 
 // Manejador para la ruta de usuario específico (para eliminar)
-export const userHandler: Handlers = {
+export const userHandler: Handlers<unknown, State> = {
   async DELETE(req, ctx) {
     // Verificar que el usuario actual es administrador
     if (ctx.state.user.role !== "admin") {
@@ -111,7 +116,10 @@ export const userHandler: Handlers = {
         });
       }
       
-      // Eliminar el usuario utilizando la función del servicio
+      // Primero, eliminar todas las referencias al usuario en la tabla team_members
+      await deleteTeamMembersByUserId(userId);
+      
+      // Luego, eliminar el usuario
       const deletedUser = await deleteUser(userId);
       
       if (!deletedUser || deletedUser.length === 0) {
@@ -128,7 +136,18 @@ export const userHandler: Handlers = {
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
       
-      return new Response(JSON.stringify({ error: "Error al eliminar el usuario" }), {
+      // Proporcionar un mensaje de error más específico
+      let errorMessage = "Error al eliminar el usuario";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("llave foránea") || error.message.includes("foreign key")) {
+          errorMessage = "No se puede eliminar el usuario porque está asignado a uno o más proyectos. Elimine primero las asignaciones del usuario.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      return new Response(JSON.stringify({ error: errorMessage }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });

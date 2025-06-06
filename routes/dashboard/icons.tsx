@@ -1,6 +1,7 @@
 import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import { MaterialSymbol } from "../../components/MaterialSymbol.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
+import { State } from "./_middleware.ts";
 
 interface IconsData {
   user: {
@@ -12,7 +13,7 @@ interface IconsData {
   };
 }
 
-export const handler: Handlers<IconsData> = {
+export const handler: Handlers<IconsData, State> = {
   GET(_req, ctx) {
     // El middleware ya ha verificado la autenticación y ha añadido el usuario al estado
     return ctx.render({

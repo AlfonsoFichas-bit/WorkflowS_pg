@@ -1,5 +1,6 @@
 import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
+import { State } from "./_middleware.ts";
 
 interface TasksData {
   user: {
@@ -11,7 +12,7 @@ interface TasksData {
   };
 }
 
-export const handler: Handlers<TasksData> = {
+export const handler: Handlers<TasksData, State> = {
   GET(_req, ctx) {
     // El middleware ya ha verificado la autenticación y ha añadido el usuario al estado
     return ctx.render({

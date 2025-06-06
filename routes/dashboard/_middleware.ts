@@ -1,7 +1,8 @@
-import { MiddlewareHandlerContext } from "$fresh/server.ts";
-import { getSessionData, requireAuth, formatRole } from "../../utils/auth.ts";
+import type { MiddlewareHandlerContext } from "$fresh/server.ts";
+import { getSessionData, redirect, formatRole } from "../../utils/auth.ts";
 
-interface DashboardState {
+// Definir la interfaz para el estado
+export interface State {
   user: {
     id: number;
     name: string;
@@ -13,22 +14,24 @@ interface DashboardState {
 
 export async function handler(
   req: Request,
-  ctx: MiddlewareHandlerContext<DashboardState>
+  ctx: MiddlewareHandlerContext<State>
 ) {
-  // Verificar si el usuario está autenticado
-  const authRedirect = requireAuth(req);
-  if (authRedirect) {
-    return authRedirect;
+  // Obtener los datos de la sesión
+  const sessionData = getSessionData(req);
+
+  // Si no hay sesión, redirigir al login
+  if (!sessionData) {
+    return redirect("/auth/login");
   }
 
-  // Obtener los datos del usuario de la sesión
-  const sessionData = getSessionData(req);
-  
-  // Añadir los datos del usuario al estado
+  // Añadir el usuario al estado
   ctx.state.user = {
-    ...sessionData,
-    formattedRole: formatRole(sessionData.role)
+    id: sessionData.id,
+    name: sessionData.name,
+    email: sessionData.email,
+    role: sessionData.role,
+    formattedRole: formatRole(sessionData.role),
   };
-  
+
   return await ctx.next();
 }
