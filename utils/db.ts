@@ -1,7 +1,7 @@
-import { db, testConnection, closePool } from "../db/db.ts";
+import { db, testConnection, closePool } from "../src/db/db.ts";
 
 // Export everything from the database services
-export * from "../db/services.ts";
+export * from "../src/db/db.ts";
 
 // Export the database instance
 export { db };

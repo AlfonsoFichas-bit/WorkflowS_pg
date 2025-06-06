@@ -8,7 +8,7 @@ import {
   tasks, 
   comments, 
   evaluations 
-} from "./schema.ts";
+} from "./schema/index.ts";
 import { 
   usersRelations, 
   projectsRelations, 
@@ -142,4 +142,23 @@ export async function updateTask(id: number, taskData: Partial<Omit<typeof tasks
 
 export async function deleteTask(id: number) {
   return await db.delete(tasks).where(eq(tasks.id, id)).returning();
+}
+
+
+// Helper function to test the database connection
+export async function testConnection() {
+  try {
+    const client = await pool.connect();
+    console.log("Successfully connected to PostgreSQL");
+    client.release();
+    return true;
+  } catch (error) {
+    console.error("Error connecting to PostgreSQL:", error);
+    return false;
+  }
+}
+
+// Close the pool (call this when shutting down the application)
+export async function closePool() {
+  await pool.end();
 }

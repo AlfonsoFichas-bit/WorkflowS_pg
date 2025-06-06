@@ -1,14 +1,12 @@
 // Database connection and client setup
-// This file will export the database client and connection
+// This file exports the database client and all necessary functions
 
-// This is a placeholder for the actual Drizzle ORM implementation
-// It will be implemented according to the guide later
+// Export everything from db.ts
+export * from "./db.ts";
 
-export const db = {
-  // This will be replaced with the actual Drizzle ORM client
-  connect: () => {
-    console.log("Database connection placeholder - will be implemented with Drizzle ORM");
-  },
-};
+// Export schemas and relations
+export * from "./schema/index.ts";
+export * from "./relations.ts";
 
-// Export any database utility functions here
+// Export migration utilities
+export { default as migrate } from "./migrate.ts";

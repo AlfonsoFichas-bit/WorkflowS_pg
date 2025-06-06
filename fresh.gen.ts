@@ -16,6 +16,7 @@ import * as $dashboard_projects from "./routes/dashboard/projects.tsx";
 import * as $dashboard_tasks from "./routes/dashboard/tasks.tsx";
 import * as $dashboard_team from "./routes/dashboard/team.tsx";
 import * as $dashboard_users from "./routes/dashboard/users.tsx";
+import * as $dashboard_users_id_ from "./routes/dashboard/users/[id].tsx";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
@@ -42,6 +43,7 @@ const manifest = {
     "./routes/dashboard/tasks.tsx": $dashboard_tasks,
     "./routes/dashboard/team.tsx": $dashboard_team,
     "./routes/dashboard/users.tsx": $dashboard_users,
+    "./routes/dashboard/users/[id].tsx": $dashboard_users_id_,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
   },

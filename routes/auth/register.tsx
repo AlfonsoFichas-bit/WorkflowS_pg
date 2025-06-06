@@ -8,6 +8,8 @@ interface RegisterData {
   message?: string;
   errors?: {
     name?: string;
+    paternalLastName?: string;
+    maternalLastName?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
@@ -19,7 +21,8 @@ export const handler: Handlers<RegisterData> = {
   async POST(req, ctx) {
     const form = await req.formData();
     const name = form.get("name")?.toString() || "";
-    const lastName = form.get("lastName")?.toString() || "";
+    const paternalLastName = form.get("paternalLastName")?.toString() || "";
+    const maternalLastName = form.get("maternalLastName")?.toString() || "";
     const email = form.get("email")?.toString() || "";
     const password = form.get("password")?.toString() || "";
     const confirmPassword = form.get("confirmPassword")?.toString() || "";
@@ -31,6 +34,7 @@ export const handler: Handlers<RegisterData> = {
     const errors: RegisterData["errors"] = {};
 
     if (!name) errors.name = "El nombre es requerido";
+    if (!paternalLastName) errors.paternalLastName = "El apellido paterno es requerido";
     if (!email) errors.email = "El correo electrónico es requerido";
     if (!password) errors.password = "La contraseña es requerida";
     if (password !== confirmPassword) {
@@ -48,9 +52,10 @@ export const handler: Handlers<RegisterData> = {
       const hashedPassword = await bcrypt.hash(password);
 
       // Create the user
-      const fullName = `${name} ${lastName}`.trim();
       await createUser({
-        name: fullName,
+        name,
+        paternalLastName,
+        maternalLastName,
         email,
         password: hashedPassword,
         role,
@@ -98,10 +103,10 @@ export default function Register({ data }: PageProps<RegisterData>) {
           </div>
 
           <form class="space-y-6" method="POST">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4">
               <div>
                 <label for="name" class="block text-sm font-medium text-gray-700">
-                  Nombre
+                  Nombre*
                 </label>
                 <input
                   id="name"
@@ -113,13 +118,30 @@ export default function Register({ data }: PageProps<RegisterData>) {
                   <p class="mt-1 text-sm text-red-600">{errors.name}</p>
                 )}
               </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
               <div>
-                <label for="lastName" class="block text-sm font-medium text-gray-700">
-                  Apellido
+                <label for="paternalLastName" class="block text-sm font-medium text-gray-700">
+                  Apellido Paterno*
                 </label>
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="paternalLastName"
+                  name="paternalLastName"
+                  type="text"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                {errors?.paternalLastName && (
+                  <p class="mt-1 text-sm text-red-600">{errors.paternalLastName}</p>
+                )}
+              </div>
+              <div>
+                <label for="maternalLastName" class="block text-sm font-medium text-gray-700">
+                  Apellido Materno
+                </label>
+                <input
+                  id="maternalLastName"
+                  name="maternalLastName"
                   type="text"
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />

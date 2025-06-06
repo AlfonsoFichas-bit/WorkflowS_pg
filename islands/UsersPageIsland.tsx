@@ -29,9 +29,13 @@ export default function UsersPageIsland(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const handleCreateUser = async (userData: {
     name: string;
+    paternalLastName: string;
+    maternalLastName: string;
     email: string;
     password: string;
     role: string;
@@ -45,7 +49,14 @@ export default function UsersPageIsland(
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          name: userData.name,
+          paternal_last_name: userData.paternalLastName,
+          maternal_last_name: userData.maternalLastName,
+          email: userData.email,
+          password: userData.password,
+          role: userData.role,
+        }),
       });
 
       const data = await response.json();
@@ -67,6 +78,47 @@ export default function UsersPageIsland(
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const response = await fetch(`/dashboard/users/${userToDelete.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al eliminar el usuario");
+      }
+
+      setSuccess("Usuario eliminado correctamente");
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+
+      // Recargar la página para actualizar la lista de usuarios
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error: unknown) {
+      console.error("Error:", error);
+      setError(error instanceof Error ? error.message : "Error desconocido");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const confirmDelete = (user: User) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
   };
 
   const formatRole = (role: string): string => {
@@ -182,6 +234,7 @@ export default function UsersPageIsland(
                             <button
                                 type="button"
                                 class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                onClick={() => confirmDelete(user)}
                             >
                               <MaterialSymbol icon="delete"/>
                             </button>
@@ -201,6 +254,7 @@ export default function UsersPageIsland(
             )}
       </div>
 
+      {/* Modal para crear usuario */}
       <ModalIsland
           show={showModal}
           onClose={() => setShowModal(false)}
@@ -232,6 +286,72 @@ export default function UsersPageIsland(
               onCancel={() => setShowModal(false)}
               isSubmitting={isSubmitting}
           />
+        </div>
+      </ModalIsland>
+
+      {/* Modal para confirmar eliminación */}
+      <ModalIsland
+          show={showDeleteModal}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setUserToDelete(null);
+          }}
+          maxWidth="sm"
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Confirmar Eliminación</h2>
+            <button
+                type="button"
+                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setUserToDelete(null);
+                }}
+            >
+              <MaterialSymbol icon="close"/>
+            </button>
+          </div>
+
+          {error && (
+              <div
+                  class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                  role="alert"
+              >
+                <span class="block sm:inline">{error}</span>
+              </div>
+          )}
+
+          <div class="mb-6">
+            <p class="text-gray-700 dark:text-gray-300">
+              ¿Estás seguro de que deseas eliminar al usuario <strong>{userToDelete?.name}</strong>?
+            </p>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">
+              Esta acción no se puede deshacer.
+            </p>
+          </div>
+
+          <div class="flex justify-end space-x-3">
+            <button
+                type="button"
+                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setUserToDelete(null);
+                }}
+                disabled={isSubmitting}
+            >
+              Cancelar
+            </button>
+            <button
+                type="button"
+                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
+                onClick={handleDeleteUser}
+                disabled={isSubmitting}
+            >
+              {isSubmitting ? "Eliminando..." : "Eliminar"}
+            </button>
+          </div>
         </div>
       </ModalIsland>
     </div>

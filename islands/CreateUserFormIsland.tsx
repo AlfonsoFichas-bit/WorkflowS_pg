@@ -5,6 +5,8 @@ import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 interface CreateUserFormProps {
   onSubmit: (userData: {
     name: string;
+    paternalLastName: string;
+    maternalLastName: string;
     email: string;
     password: string;
     role: string;
@@ -19,6 +21,8 @@ export default function CreateUserFormIsland({
   isSubmitting = false,
 }: CreateUserFormProps) {
   const [name, setName] = useState("");
+  const [paternalLastName, setPaternalLastName] = useState("");
+  const [maternalLastName, setMaternalLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,6 +35,10 @@ export default function CreateUserFormIsland({
 
     if (!name.trim()) {
       newErrors.name = "El nombre es obligatorio";
+    }
+
+    if (!paternalLastName.trim()) {
+      newErrors.paternalLastName = "El apellido paterno es obligatorio";
     }
 
     if (!email.trim()) {
@@ -59,6 +67,8 @@ export default function CreateUserFormIsland({
     if (validateForm()) {
       onSubmit({
         name,
+        paternalLastName,
+        maternalLastName,
         email,
         password,
         role,
@@ -77,7 +87,7 @@ export default function CreateUserFormIsland({
           htmlFor="name"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Nombre completo
+          Nombre
         </label>
         <div className="mt-1">
           <input
@@ -94,6 +104,52 @@ export default function CreateUserFormIsland({
           {errors.name && (
             <p className="mt-1 text-sm text-red-600">{errors.name}</p>
           )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label
+            htmlFor="paternalLastName"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            Apellido Paterno
+          </label>
+          <div className="mt-1">
+            <input
+              id="paternalLastName"
+              name="paternalLastName"
+              type="text"
+              required
+              value={paternalLastName}
+              onChange={(e) => setPaternalLastName((e.target as HTMLInputElement).value)}
+              className={`block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
+                errors.paternalLastName ? "border-red-500" : ""
+              }`}
+            />
+            {errors.paternalLastName && (
+              <p className="mt-1 text-sm text-red-600">{errors.paternalLastName}</p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="maternalLastName"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            Apellido Materno
+          </label>
+          <div className="mt-1">
+            <input
+              id="maternalLastName"
+              name="maternalLastName"
+              type="text"
+              value={maternalLastName}
+              onChange={(e) => setMaternalLastName((e.target as HTMLInputElement).value)}
+              className="block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+          </div>
         </div>
       </div>
 

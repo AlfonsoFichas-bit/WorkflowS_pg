@@ -8,7 +8,7 @@ import {
   tasks, 
   comments, 
   evaluations 
-} from "./schema.ts";
+} from "./schema/index.ts";
 
 // Relaciones de usuarios
 export const usersRelations = relations(users, ({ many }) => ({
