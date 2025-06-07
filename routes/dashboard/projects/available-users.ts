@@ -1,5 +1,5 @@
-import { Handlers } from "$fresh/server.ts";
-import { State } from "../_middleware.ts";
+import type { Handlers } from "$fresh/server.ts";
+import type { State } from "../_middleware.ts";
 import { getAllUsers } from "../../../utils/db.ts";
 
 // Manejador para obtener usuarios disponibles para agregar a proyectos
