@@ -68,6 +68,46 @@ export async function getAllUsers() {
   return await db.select().from(users);
 }
 
+export async function getAllUsersWithTeamMemberships() {
+  // First get all users
+  const allUsers = await getAllUsers();
+
+  // Then get team memberships for each user
+  const usersWithMemberships = await Promise.all(
+    allUsers.map(async (user) => {
+      const memberships = await getTeamMembersByUserId(user.id);
+
+      // Get team and project details for each membership
+      const membershipsWithDetails = await Promise.all(
+        memberships.map(async (membership) => {
+          const team = await getTeamById(membership.teamId);
+          let project = null;
+
+          if (team && team.length > 0) {
+            const projectResult = await getProjectById(team[0].projectId);
+            if (projectResult && projectResult.length > 0) {
+              project = projectResult[0];
+            }
+          }
+
+          return {
+            ...membership,
+            team: team && team.length > 0 ? team[0] : null,
+            project: project,
+          };
+        })
+      );
+
+      return {
+        ...user,
+        teamMemberships: membershipsWithDetails,
+      };
+    })
+  );
+
+  return usersWithMemberships;
+}
+
 export async function updateUser(id: number, userData: Partial<Omit<typeof users.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
   return await db.update(users)
     .set({
@@ -109,6 +149,18 @@ export async function updateProject(id: number, projectData: Partial<Omit<typeof
 }
 
 export async function deleteProject(id: number) {
+  // First, get all teams associated with this project
+  const projectTeams = await getTeamsByProjectId(id);
+
+  // Delete all team members for each team
+  for (const team of projectTeams) {
+    await db.delete(teamMembers).where(eq(teamMembers.teamId, team.id));
+  }
+
+  // Delete all teams associated with this project
+  await db.delete(teams).where(eq(teams.projectId, id));
+
+  // Now we can safely delete the project
   return await db.delete(projects).where(eq(projects.id, id)).returning();
 }
 
@@ -170,6 +222,38 @@ export async function deleteTeamMember(id: number) {
 
 export async function deleteTeamMembersByUserId(userId: number) {
   return await db.delete(teamMembers).where(eq(teamMembers.userId, userId)).returning();
+}
+
+// Función para obtener los miembros de un proyecto
+export async function getProjectMembers(projectId: number) {
+  // Primero obtenemos los equipos del proyecto
+  const projectTeams = await getTeamsByProjectId(projectId);
+
+  if (!projectTeams || projectTeams.length === 0) {
+    return [];
+  }
+
+  // Obtenemos los IDs de los equipos
+  const teamIds = projectTeams.map(team => team.id);
+
+  // Obtenemos los miembros de todos los equipos del proyecto
+  const members = [];
+  for (const teamId of teamIds) {
+    const teamMembersResult = await db.select({
+      id: teamMembers.id,
+      userId: teamMembers.userId,
+      teamId: teamMembers.teamId,
+      role: teamMembers.role,
+      user: users
+    })
+    .from(teamMembers)
+    .innerJoin(users, eq(teamMembers.userId, users.id))
+    .where(eq(teamMembers.teamId, teamId));
+
+    members.push(...teamMembersResult);
+  }
+
+  return members;
 }
 
 // Servicios de tarea

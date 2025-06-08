@@ -3,6 +3,23 @@ import ModalIsland from "./ModalIsland.tsx";
 import CreateUserFormIsland from "./CreateUserFormIsland.tsx";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 
+interface TeamMembership {
+  id: number;
+  userId: number;
+  teamId: number;
+  role: string;
+  team: {
+    id: number;
+    name: string;
+    projectId: number;
+  } | null;
+  project: {
+    id: number;
+    name: string;
+    description: string | null;
+  } | null;
+}
+
 interface User {
   id: number;
   name: string;
@@ -13,6 +30,7 @@ interface User {
   paternalLastName: string | null;
   maternalLastName: string | null;
   password: string;
+  teamMemberships?: TeamMembership[];
 }
 
 interface UsersPageIslandProps {
@@ -86,7 +104,7 @@ export default function UsersPageIsland(
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
-    
+
     setIsSubmitting(true);
     setError("");
 
@@ -197,7 +215,11 @@ export default function UsersPageIsland(
                       </th>
                       <th scope="col"
                           class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Rol
+                        Rol Global
+                      </th>
+                      <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Roles en Proyectos
                       </th>
                       <th scope="col"
                           class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -228,6 +250,30 @@ export default function UsersPageIsland(
                         }`}>
                           {formatRole(user.role)}
                         </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                            {user.teamMemberships && user.teamMemberships.length > 0 ? (
+                              <div class="space-y-1">
+                                {user.teamMemberships.map((membership) => (
+                                  <div key={membership.id} class="flex items-center">
+                                    <span class={`px-2 py-1 rounded text-xs ${
+                                      membership.role === "product_owner"
+                                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                        : membership.role === "scrum_master"
+                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                        : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                    }`}>
+                                      {formatRole(membership.role)}
+                                    </span>
+                                    <span class="ml-2">
+                                      {membership.project ? `en ${membership.project.name}` : ""}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span class="text-gray-400">Sin roles en proyectos</span>
+                            )}
                           </td>
                           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                             {formatDate(user.createdAt)}

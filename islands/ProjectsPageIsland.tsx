@@ -11,6 +11,18 @@ interface Project {
   ownerId: number;
   createdAt: Date | null;
   updatedAt: Date | null;
+  members?: {
+    id: number;
+    userId: number;
+    teamId: number;
+    role: string;
+    user: {
+      id: number;
+      name: string;
+      email: string;
+      role: string;
+    };
+  }[];
 }
 
 interface User {
@@ -65,7 +77,7 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
   // Función para agregar un usuario a un proyecto
   const handleAddUserToProject = async (userData: { userId: number; role: string }) => {
     if (!selectedProject) return;
-    
+
     setIsSubmitting(true);
     try {
       const response = await fetch(`/dashboard/projects/${selectedProject.id}/users`, {
@@ -80,6 +92,17 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
 
       if (!response.ok) {
         throw new Error(data.error || "Error al agregar el usuario al proyecto");
+      }
+
+      // Actualizar la información del proyecto para mostrar el nuevo miembro
+      const updatedProjectResponse = await fetch(`/dashboard/projects/${selectedProject.id}`);
+      const updatedProjectData = await updatedProjectResponse.json();
+
+      if (updatedProjectResponse.ok && updatedProjectData.project) {
+        // Actualizar el proyecto en la lista de proyectos
+        setProjects(projects.map(project => 
+          project.id === selectedProject.id ? updatedProjectData.project : project
+        ));
       }
 
       setShowAddUserModal(false);
@@ -97,6 +120,35 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
   const openAddUserModal = (project: Project) => {
     setSelectedProject(project);
     setShowAddUserModal(true);
+  };
+
+  // Función para eliminar un proyecto
+  const handleDeleteProject = async (projectId: number) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer y los roles de los usuarios volverán a 'team_developer'.")) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/dashboard/projects/${projectId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al eliminar el proyecto");
+      }
+
+      // Eliminar el proyecto de la lista
+      setProjects(projects.filter(project => project.id !== projectId));
+      alert("Proyecto eliminado exitosamente");
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error instanceof Error ? error.message : "Error al eliminar el proyecto");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -128,18 +180,46 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
                 <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
                   {project.description || "Sin descripción"}
                 </p>
+
+                {/* Número de miembros del proyecto */}
+                <div className="mb-4 flex items-center">
+                  <MaterialSymbol icon="group" className="mr-2 text-gray-500" />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {project.members && project.members.length > 0
+                      ? `${project.members.length} miembro${project.members.length !== 1 ? 's' : ''}`
+                      : "Sin miembros"}
+                  </span>
+                </div>
+
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500 dark:text-gray-400">
                     Creado: {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : "N/A"}
                   </span>
-                  <button
+                  <div className="flex space-x-2">
+                    <a
+                      href={`/dashboard/projects/${project.id}/members`}
+                      className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center"
+                    >
+                      <MaterialSymbol icon="group" className="mr-1" />
+                      Ver Miembros
+                    </a>
+                    <button
                       type="button"
-                    onClick={() => openAddUserModal(project)}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
-                  >
-                    <MaterialSymbol icon="person_add" className="mr-1" />
-                    Agregar Usuario
-                  </button>
+                      onClick={() => openAddUserModal(project)}
+                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+                    >
+                      <MaterialSymbol icon="person_add" className="mr-1" />
+                      Agregar Usuario
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteProject(project.id)}
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 flex items-center"
+                    >
+                      <MaterialSymbol icon="delete" className="mr-1" />
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

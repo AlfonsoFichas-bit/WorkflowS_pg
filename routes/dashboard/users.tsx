@@ -1,8 +1,25 @@
 import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { State } from "./_middleware.ts";
-import { createUser, getAllUsers, deleteUser, deleteTeamMembersByUserId } from "../../utils/db.ts";
+import { createUser, getAllUsersWithTeamMemberships, deleteUser, deleteTeamMembersByUserId } from "../../utils/db.ts";
 import UsersPageIsland from "../../islands/UsersPageIsland.tsx";
+
+interface TeamMembership {
+  id: number;
+  userId: number;
+  teamId: number;
+  role: string;
+  team: {
+    id: number;
+    name: string;
+    projectId: number;
+  } | null;
+  project: {
+    id: number;
+    name: string;
+    description: string | null;
+  } | null;
+}
 
 interface User {
   id: number;
@@ -14,6 +31,7 @@ interface User {
   paternalLastName: string | null;
   maternalLastName: string | null;
   password: string;
+  teamMemberships?: TeamMembership[];
 }
 
 interface UsersData {
@@ -30,16 +48,16 @@ interface UsersData {
 export const handler: Handlers<UsersData, State> = {
   async GET(_req, ctx) {
     // El middleware ya ha verificado la autenticación y ha añadido el usuario al estado
-    
-    // Obtener la lista de usuarios utilizando la función del servicio
-    const usersList = await getAllUsers();
-    
+
+    // Obtener la lista de usuarios con sus membresías de equipo
+    const usersList = await getAllUsersWithTeamMemberships();
+
     return ctx.render({
       user: ctx.state.user,
       usersList,
     });
   },
-  
+
   async POST(req, ctx) {
     // Verificar que el usuario actual es administrador
     if (ctx.state.user.role !== "admin") {
@@ -48,11 +66,11 @@ export const handler: Handlers<UsersData, State> = {
         headers: { "Content-Type": "application/json" },
       });
     }
-    
+
     try {
       const formData = await req.json();
       const { name, email, password, role, paternalLastName, maternalLastName } = formData;
-      
+
       // Crear el usuario utilizando la función del servicio
       await createUser({
         name,
@@ -62,14 +80,14 @@ export const handler: Handlers<UsersData, State> = {
         paternalLastName: paternalLastName || "", // Usar el valor proporcionado o cadena vacía
         maternalLastName: maternalLastName || "", // Usar el valor proporcionado o cadena vacía
       });
-      
+
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
       console.error("Error al crear usuario:", error);
-      
+
       // Si el error es que el usuario ya existe, devolver un mensaje específico
       if (error instanceof Error && error.message === "User with this email already exists") {
         return new Response(JSON.stringify({ error: "El correo electrónico ya está registrado" }), {
@@ -77,7 +95,7 @@ export const handler: Handlers<UsersData, State> = {
           headers: { "Content-Type": "application/json" },
         });
       }
-      
+
       return new Response(JSON.stringify({ error: "Error al crear el usuario" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -96,18 +114,18 @@ export const userHandler: Handlers<unknown, State> = {
         headers: { "Content-Type": "application/json" },
       });
     }
-    
+
     try {
       // Obtener el ID del usuario de los parámetros de la URL
       const userId = parseInt(ctx.params.id);
-      
+
       if (isNaN(userId)) {
         return new Response(JSON.stringify({ error: "ID de usuario inválido" }), {
           status: 400,
           headers: { "Content-Type": "application/json" },
         });
       }
-      
+
       // Evitar que un administrador se elimine a sí mismo
       if (userId === ctx.state.user.id) {
         return new Response(JSON.stringify({ error: "No puedes eliminar tu propia cuenta" }), {
@@ -115,30 +133,30 @@ export const userHandler: Handlers<unknown, State> = {
           headers: { "Content-Type": "application/json" },
         });
       }
-      
+
       // Primero, eliminar todas las referencias al usuario en la tabla team_members
       await deleteTeamMembersByUserId(userId);
-      
+
       // Luego, eliminar el usuario
       const deletedUser = await deleteUser(userId);
-      
+
       if (!deletedUser || deletedUser.length === 0) {
         return new Response(JSON.stringify({ error: "Usuario no encontrado" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
         });
       }
-      
+
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
-      
+
       // Proporcionar un mensaje de error más específico
       let errorMessage = "Error al eliminar el usuario";
-      
+
       if (error instanceof Error) {
         if (error.message.includes("llave foránea") || error.message.includes("foreign key")) {
           errorMessage = "No se puede eliminar el usuario porque está asignado a uno o más proyectos. Elimine primero las asignaciones del usuario.";
@@ -146,7 +164,7 @@ export const userHandler: Handlers<unknown, State> = {
           errorMessage = error.message;
         }
       }
-      
+
       return new Response(JSON.stringify({ error: errorMessage }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -157,7 +175,7 @@ export const userHandler: Handlers<unknown, State> = {
 
 export default function Users({ data }: PageProps<UsersData>) {
   const { user, usersList } = data;
-  
+
   return (
     <DashboardLayout user={user}>
       <div class="p-6">

@@ -1,15 +1,15 @@
-import { Handlers } from "$fresh/server.ts";
-import { State } from "../../_middleware.ts";
+import type { Handlers } from "$fresh/server.ts";
+import type { State } from "../../_middleware.ts";
 import { createTeamMember, getProjectById, getUserById, getTeamsByProjectId, createTeam, getTeamMembersByTeamId, updateTeamMember } from "../../../../utils/db.ts";
 
 // Manejador para agregar usuarios a un proyecto
 export const handler: Handlers<unknown, State> = {
   async POST(req, ctx) {
     try {
-      const projectId = parseInt(ctx.params.id);
+      const projectId = Number.parseInt(ctx.params.id);
       const { userId, role } = await req.json();
       
-      if (isNaN(projectId)) {
+      if (Number.isNaN(projectId)) {
         return new Response(JSON.stringify({ error: "ID de proyecto inválido" }), {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -37,7 +37,7 @@ export const handler: Handlers<unknown, State> = {
       // Agregar el usuario al proyecto (a través de un equipo)
       // Primero, necesitamos obtener o crear un equipo para el proyecto
       const teams = await getTeamsByProjectId(projectId);
-      let teamId;
+      let teamId: number;
       
       if (teams && teams.length > 0) {
         // Usar el primer equipo existente

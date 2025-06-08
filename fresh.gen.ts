@@ -13,8 +13,10 @@ import * as $dashboard_middleware from "./routes/dashboard/_middleware.ts";
 import * as $dashboard_icons from "./routes/dashboard/icons.tsx";
 import * as $dashboard_index from "./routes/dashboard/index.tsx";
 import * as $dashboard_projects from "./routes/dashboard/projects.tsx";
+import * as $dashboard_projects_id_ from "./routes/dashboard/projects/[id].tsx";
+import * as $dashboard_projects_id_members from "./routes/dashboard/projects/[id]/members.tsx";
 import * as $dashboard_projects_id_users from "./routes/dashboard/projects/[id]/users.ts";
-import * as $dashboard_projects_available_users from "./routes/dashboard/projects/available-users.ts";
+import * as $dashboard_projects_available_users from "./routes/dashboard/projects/available-users.tsx";
 import * as $dashboard_tasks from "./routes/dashboard/tasks.tsx";
 import * as $dashboard_team from "./routes/dashboard/team.tsx";
 import * as $dashboard_users from "./routes/dashboard/users.tsx";
@@ -26,6 +28,7 @@ import * as $Counter from "./islands/Counter.tsx";
 import * as $CreateProjectFormIsland from "./islands/CreateProjectFormIsland.tsx";
 import * as $CreateUserFormIsland from "./islands/CreateUserFormIsland.tsx";
 import * as $ModalIsland from "./islands/ModalIsland.tsx";
+import * as $ProjectMembersIsland from "./islands/ProjectMembersIsland.tsx";
 import * as $ProjectsPageIsland from "./islands/ProjectsPageIsland.tsx";
 import * as $SidebarIsland from "./islands/SidebarIsland.tsx";
 import * as $ThemeSwitchIsland from "./islands/ThemeSwitchIsland.tsx";
@@ -45,8 +48,11 @@ const manifest = {
     "./routes/dashboard/icons.tsx": $dashboard_icons,
     "./routes/dashboard/index.tsx": $dashboard_index,
     "./routes/dashboard/projects.tsx": $dashboard_projects,
+    "./routes/dashboard/projects/[id].tsx": $dashboard_projects_id_,
+    "./routes/dashboard/projects/[id]/members.tsx":
+      $dashboard_projects_id_members,
     "./routes/dashboard/projects/[id]/users.ts": $dashboard_projects_id_users,
-    "./routes/dashboard/projects/available-users.ts":
+    "./routes/dashboard/projects/available-users.tsx":
       $dashboard_projects_available_users,
     "./routes/dashboard/tasks.tsx": $dashboard_tasks,
     "./routes/dashboard/team.tsx": $dashboard_team,
@@ -61,6 +67,7 @@ const manifest = {
     "./islands/CreateProjectFormIsland.tsx": $CreateProjectFormIsland,
     "./islands/CreateUserFormIsland.tsx": $CreateUserFormIsland,
     "./islands/ModalIsland.tsx": $ModalIsland,
+    "./islands/ProjectMembersIsland.tsx": $ProjectMembersIsland,
     "./islands/ProjectsPageIsland.tsx": $ProjectsPageIsland,
     "./islands/SidebarIsland.tsx": $SidebarIsland,
     "./islands/ThemeSwitchIsland.tsx": $ThemeSwitchIsland,

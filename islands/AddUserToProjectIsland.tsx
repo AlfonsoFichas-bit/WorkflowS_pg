@@ -35,7 +35,8 @@ export default function AddUserToProjectIsland({
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("/dashboard/projects/available-users");
+        // Pasar el projectId como parámetro para filtrar usuarios que ya son miembros
+        const response = await fetch(`/dashboard/projects/available-users?projectId=${projectId}`);
         if (!response.ok) {
           throw new Error("Error al cargar los usuarios");
         }
@@ -49,7 +50,7 @@ export default function AddUserToProjectIsland({
     };
 
     fetchUsers();
-  }, []);
+  }, [projectId]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -68,7 +69,7 @@ export default function AddUserToProjectIsland({
 
   const handleSubmit = (e: JSX.TargetedEvent<HTMLFormElement, Event>) => {
     e.preventDefault();
-    
+
     if (validateForm() && userId !== "") {
       onSubmit({
         userId: Number(userId),
