@@ -7,7 +7,10 @@ import {
   sprints, 
   tasks, 
   comments, 
-  evaluations 
+  evaluations,
+  userStories,
+  rubrics,
+  rubricCriteria
 } from "./schema/index.ts";
 
 // Relaciones de usuarios
@@ -102,5 +105,35 @@ export const evaluationsRelations = relations(evaluations, ({ one }) => ({
     fields: [evaluations.evaluatorId],
     references: [users.id],
     relationName: "evaluator",
+  }),
+}));
+
+// Relaciones de historias de usuario
+export const userStoriesRelations = relations(userStories, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [userStories.projectId],
+    references: [projects.id],
+  }),
+  sprint: one(sprints, {
+    fields: [userStories.sprintId],
+    references: [sprints.id],
+  }),
+  tasks: many(tasks),
+}));
+
+// Relaciones de rúbricas
+export const rubricsRelations = relations(rubrics, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [rubrics.creatorId],
+    references: [users.id],
+  }),
+  criteria: many(rubricCriteria),
+}));
+
+// Relaciones de criterios de rúbrica
+export const rubricCriteriaRelations = relations(rubricCriteria, ({ one }) => ({
+  rubric: one(rubrics, {
+    fields: [rubricCriteria.rubricId],
+    references: [rubrics.id],
   }),
 }));

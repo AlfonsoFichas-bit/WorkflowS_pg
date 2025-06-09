@@ -7,7 +7,10 @@ import {
   sprints, 
   tasks, 
   comments, 
-  evaluations 
+  evaluations,
+  userStories,
+  rubrics,
+  rubricCriteria
 } from "./schema/index.ts";
 import { 
   usersRelations, 
@@ -17,16 +20,23 @@ import {
   sprintsRelations, 
   tasksRelations, 
   commentsRelations, 
-  evaluationsRelations 
+  evaluationsRelations,
+  userStoriesRelations,
+  rubricsRelations,
+  rubricCriteriaRelations
 } from "./relations.ts";
 import pg from "pg";
 import { eq } from "drizzle-orm";
 
 const { Pool } = pg;
 
+// Importar la configuración de la base de datos
+import { databaseConfig } from "../config/database.ts";
+
 // Crear el pool de conexiones
 const pool = new Pool({
-  connectionString: Deno.env.get("DATABASE_URL"),
+  connectionString: databaseConfig.connectionString,
+  ssl: true, // Siempre habilitar SSL para Neon Tech
 });
 
 // Crear la instancia de drizzle
@@ -40,6 +50,9 @@ export const db = drizzle(pool, {
     tasks,
     comments,
     evaluations,
+    userStories,
+    rubrics,
+    rubricCriteria,
     usersRelations,
     projectsRelations,
     teamsRelations,
@@ -47,7 +60,10 @@ export const db = drizzle(pool, {
     sprintsRelations,
     tasksRelations,
     commentsRelations,
-    evaluationsRelations
+    evaluationsRelations,
+    userStoriesRelations,
+    rubricsRelations,
+    rubricCriteriaRelations
   },
 });
 
@@ -288,6 +304,117 @@ export async function deleteTask(id: number) {
   return await db.delete(tasks).where(eq(tasks.id, id)).returning();
 }
 
+// Servicios de sprint
+export async function createSprint(sprintData: Omit<typeof sprints.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  return await db.insert(sprints).values(sprintData).returning();
+}
+
+export async function getSprintById(id: number) {
+  return await db.select().from(sprints).where(eq(sprints.id, id)).limit(1);
+}
+
+export async function getSprintsByProjectId(projectId: number) {
+  return await db.select().from(sprints).where(eq(sprints.projectId, projectId));
+}
+
+export async function getAllSprints() {
+  return await db.select().from(sprints);
+}
+
+export async function updateSprint(id: number, sprintData: Partial<Omit<typeof sprints.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
+  return await db.update(sprints).set({
+    ...sprintData,
+    updatedAt: new Date()
+  }).where(eq(sprints.id, id)).returning();
+}
+
+export async function deleteSprint(id: number) {
+  return await db.delete(sprints).where(eq(sprints.id, id)).returning();
+}
+
+// Servicios de historias de usuario
+export async function createUserStory(userStoryData: Omit<typeof userStories.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  return await db.insert(userStories).values(userStoryData).returning();
+}
+
+export async function getUserStoryById(id: number) {
+  return await db.select().from(userStories).where(eq(userStories.id, id)).limit(1);
+}
+
+export async function getUserStoriesByProjectId(projectId: number) {
+  return await db.select().from(userStories).where(eq(userStories.projectId, projectId));
+}
+
+export async function getUserStoriesBySprintId(sprintId: number) {
+  return await db.select().from(userStories).where(eq(userStories.sprintId, sprintId));
+}
+
+export async function getAllUserStories() {
+  return await db.select().from(userStories);
+}
+
+export async function updateUserStory(id: number, userStoryData: Partial<Omit<typeof userStories.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
+  return await db.update(userStories).set({
+    ...userStoryData,
+    updatedAt: new Date()
+  }).where(eq(userStories.id, id)).returning();
+}
+
+export async function deleteUserStory(id: number) {
+  return await db.delete(userStories).where(eq(userStories.id, id)).returning();
+}
+
+// Servicios de rúbricas
+export async function createRubric(rubricData: Omit<typeof rubrics.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  return await db.insert(rubrics).values(rubricData).returning();
+}
+
+export async function getRubricById(id: number) {
+  return await db.select().from(rubrics).where(eq(rubrics.id, id)).limit(1);
+}
+
+export async function getRubricsByCreatorId(creatorId: number) {
+  return await db.select().from(rubrics).where(eq(rubrics.creatorId, creatorId));
+}
+
+export async function getAllRubrics() {
+  return await db.select().from(rubrics);
+}
+
+export async function updateRubric(id: number, rubricData: Partial<Omit<typeof rubrics.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
+  return await db.update(rubrics).set({
+    ...rubricData,
+    updatedAt: new Date()
+  }).where(eq(rubrics.id, id)).returning();
+}
+
+export async function deleteRubric(id: number) {
+  return await db.delete(rubrics).where(eq(rubrics.id, id)).returning();
+}
+
+// Servicios de criterios de rúbrica
+export async function createRubricCriterion(criterionData: Omit<typeof rubricCriteria.$inferInsert, "id" | "createdAt" | "updatedAt">) {
+  return await db.insert(rubricCriteria).values(criterionData).returning();
+}
+
+export async function getRubricCriterionById(id: number) {
+  return await db.select().from(rubricCriteria).where(eq(rubricCriteria.id, id)).limit(1);
+}
+
+export async function getRubricCriteriaByRubricId(rubricId: number) {
+  return await db.select().from(rubricCriteria).where(eq(rubricCriteria.rubricId, rubricId));
+}
+
+export async function updateRubricCriterion(id: number, criterionData: Partial<Omit<typeof rubricCriteria.$inferInsert, "id" | "createdAt" | "updatedAt">>) {
+  return await db.update(rubricCriteria).set({
+    ...criterionData,
+    updatedAt: new Date()
+  }).where(eq(rubricCriteria.id, id)).returning();
+}
+
+export async function deleteRubricCriterion(id: number) {
+  return await db.delete(rubricCriteria).where(eq(rubricCriteria.id, id)).returning();
+}
 
 // Helper function to test the database connection
 export async function testConnection() {

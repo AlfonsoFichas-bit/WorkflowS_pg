@@ -5,6 +5,11 @@
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $api_joke from "./routes/api/joke.ts";
+import * as $api_rubric_criteria from "./routes/api/rubric-criteria.ts";
+import * as $api_rubrics from "./routes/api/rubrics.ts";
+import * as $api_sprints from "./routes/api/sprints.ts";
+import * as $api_tasks from "./routes/api/tasks.ts";
+import * as $api_user_stories from "./routes/api/user-stories.ts";
 import * as $auth_login from "./routes/auth/login.tsx";
 import * as $auth_logout from "./routes/auth/logout.ts";
 import * as $auth_register from "./routes/auth/register.tsx";
@@ -17,8 +22,11 @@ import * as $dashboard_projects_id_ from "./routes/dashboard/projects/[id].tsx";
 import * as $dashboard_projects_id_members from "./routes/dashboard/projects/[id]/members.tsx";
 import * as $dashboard_projects_id_users from "./routes/dashboard/projects/[id]/users.ts";
 import * as $dashboard_projects_available_users from "./routes/dashboard/projects/available-users.tsx";
+import * as $dashboard_rubrics from "./routes/dashboard/rubrics.tsx";
+import * as $dashboard_sprints from "./routes/dashboard/sprints.tsx";
 import * as $dashboard_tasks from "./routes/dashboard/tasks.tsx";
 import * as $dashboard_team from "./routes/dashboard/team.tsx";
+import * as $dashboard_user_stories from "./routes/dashboard/user-stories.tsx";
 import * as $dashboard_users from "./routes/dashboard/users.tsx";
 import * as $dashboard_users_id_ from "./routes/dashboard/users/[id].tsx";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
@@ -30,8 +38,12 @@ import * as $CreateUserFormIsland from "./islands/CreateUserFormIsland.tsx";
 import * as $ModalIsland from "./islands/ModalIsland.tsx";
 import * as $ProjectMembersIsland from "./islands/ProjectMembersIsland.tsx";
 import * as $ProjectsPageIsland from "./islands/ProjectsPageIsland.tsx";
+import * as $RubricsPageIsland from "./islands/RubricsPageIsland.tsx";
 import * as $SidebarIsland from "./islands/SidebarIsland.tsx";
+import * as $SprintsPageIsland from "./islands/SprintsPageIsland.tsx";
+import * as $TasksPageIsland from "./islands/TasksPageIsland.tsx";
 import * as $ThemeSwitchIsland from "./islands/ThemeSwitchIsland.tsx";
+import * as $UserStoriesPageIsland from "./islands/UserStoriesPageIsland.tsx";
 import * as $UsersPageIsland from "./islands/UsersPageIsland.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -40,6 +52,11 @@ const manifest = {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/api/joke.ts": $api_joke,
+    "./routes/api/rubric-criteria.ts": $api_rubric_criteria,
+    "./routes/api/rubrics.ts": $api_rubrics,
+    "./routes/api/sprints.ts": $api_sprints,
+    "./routes/api/tasks.ts": $api_tasks,
+    "./routes/api/user-stories.ts": $api_user_stories,
     "./routes/auth/login.tsx": $auth_login,
     "./routes/auth/logout.ts": $auth_logout,
     "./routes/auth/register.tsx": $auth_register,
@@ -54,8 +71,11 @@ const manifest = {
     "./routes/dashboard/projects/[id]/users.ts": $dashboard_projects_id_users,
     "./routes/dashboard/projects/available-users.tsx":
       $dashboard_projects_available_users,
+    "./routes/dashboard/rubrics.tsx": $dashboard_rubrics,
+    "./routes/dashboard/sprints.tsx": $dashboard_sprints,
     "./routes/dashboard/tasks.tsx": $dashboard_tasks,
     "./routes/dashboard/team.tsx": $dashboard_team,
+    "./routes/dashboard/user-stories.tsx": $dashboard_user_stories,
     "./routes/dashboard/users.tsx": $dashboard_users,
     "./routes/dashboard/users/[id].tsx": $dashboard_users_id_,
     "./routes/greet/[name].tsx": $greet_name_,
@@ -69,8 +89,12 @@ const manifest = {
     "./islands/ModalIsland.tsx": $ModalIsland,
     "./islands/ProjectMembersIsland.tsx": $ProjectMembersIsland,
     "./islands/ProjectsPageIsland.tsx": $ProjectsPageIsland,
+    "./islands/RubricsPageIsland.tsx": $RubricsPageIsland,
     "./islands/SidebarIsland.tsx": $SidebarIsland,
+    "./islands/SprintsPageIsland.tsx": $SprintsPageIsland,
+    "./islands/TasksPageIsland.tsx": $TasksPageIsland,
     "./islands/ThemeSwitchIsland.tsx": $ThemeSwitchIsland,
+    "./islands/UserStoriesPageIsland.tsx": $UserStoriesPageIsland,
     "./islands/UsersPageIsland.tsx": $UsersPageIsland,
   },
   baseUrl: import.meta.url,

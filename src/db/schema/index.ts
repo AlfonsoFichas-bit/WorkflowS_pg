@@ -7,3 +7,5 @@ export * from "./sprints.ts";
 export * from "./tasks.ts";
 export * from "./comments.ts";
 export * from "./evaluations.ts";
+export * from "./userStories.ts";
+export * from "./rubrics.ts";

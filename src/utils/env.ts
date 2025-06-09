@@ -24,7 +24,7 @@ export function loadEnvConfig(): EnvConfig {
   
   // Get environment variables with fallbacks for development
   const DATABASE_URL = Deno.env.get("DATABASE_URL") || 
-    (isDev ? "postgresql://postgres:123456@localhost:5432/workflow_db" : "");
+    (isDev ? "postgresql://workflow_db_owner:npg_XIvlGxrM2P8W@ep-weathered-tree-aclucr15-pooler.sa-east-1.aws.neon.tech/workflow_db?sslmode=require" : "");
   
   const PORT = Deno.env.get("PORT") || "8000";
   const ENV = Deno.env.get("ENV") || "development";

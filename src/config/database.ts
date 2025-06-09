@@ -7,7 +7,7 @@ import { config } from "../utils/env.ts";
 export const databaseConfig = {
   connectionString: config.DATABASE_URL,
   // Add any additional database configuration here
-  ssl: config.ENV === "production", // Use SSL in production only
+  ssl: true, // Enable SSL for Neon Tech connection
   debug: config.ENV === "development", // Enable debug in development
 };
 
