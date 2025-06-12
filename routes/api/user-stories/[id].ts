@@ -5,7 +5,7 @@ import {
   updateUserStory,
   deleteUserStory,
 } from "../../../src/db/db.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../../utils/permissions.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../../src/utils/permissions.ts";
 import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../types/roles.ts";
 import type { UserStoryStatus, UserStoryPriority } from "../../../types/userStory.ts";
 import { userStories } from "../../../src/db/schema/index.ts";

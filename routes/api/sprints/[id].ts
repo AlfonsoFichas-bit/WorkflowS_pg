@@ -6,7 +6,7 @@ import {
   deleteSprint,
   assignUserStoryToSprint, // For disassociating user stories on delete
 } from "../../../src/db/db.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../../utils/permissions.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../../src/utils/permissions.ts";
 import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../types/roles.ts";
 import { SprintStatus } from "../../../types/sprint.ts";
 import { sprints, userStories } from "../../../src/db/schema/index.ts"; // For type inference

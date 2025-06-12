@@ -8,7 +8,7 @@ import {
   // deleteSprint, // Will be in [id].ts
   // getAllSprints, // Not required by current subtask for this endpoint
 } from "../../src/db/db.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../utils/permissions.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../src/utils/permissions.ts";
 import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../types/roles.ts";
 import { PLANNED, SprintStatus } from "../../types/sprint.ts";
 import { sprints } from "../../src/db/schema/index.ts"; // For type inference
