@@ -415,10 +415,10 @@ export default function TasksPageIsland({
 
       {/* Create Task Modal */}
       <Modal
-        isOpen={showCreateModal}
+        show={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        title="Crear Nueva Tarea"
       >
+        <h2 class="text-xl font-semibold mb-4">Crear Nueva Tarea</h2>
         <form onSubmit={handleSubmit} class="space-y-4">
           {error && (
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative dark:bg-red-900 dark:border-red-700 dark:text-red-300" role="alert">

@@ -8,10 +8,13 @@ import {
   // getSprintsByProjectId, // Not used in this iteration
   // getProjectById, // Not strictly needed if getAllProjects gives enough info
 } from "../../src/db/db.ts";
-import { getProjectUserRole } from "../../utils/permissions.ts";
-import type { ProjectRole } from "../../types/roles.ts";
-import type { UserStory } from "../../src/db/schema/index.ts"; // Assuming UserStory type from schema
-import type { Project } from "../../src/db/schema/index.ts"; // Assuming Project type from schema
+import { getProjectUserRole } from "../../src/utils/permissions.ts";
+import type { ProjectRole } from "../../src/types/roles.ts";
+import { userStories, projects } from "../../src/db/schema/index.ts";
+
+// Define types based on schema
+type UserStory = typeof userStories.$inferSelect;
+type Project = typeof projects.$inferSelect;
 
 // Interface for project data passed to the island, including the user's role in it
 export interface ProjectWithUserRole extends Project {
@@ -27,7 +30,7 @@ export interface UserStoriesPageData {
 
 export const handler: Handlers<UserStoriesPageData, State> = {
   async GET(req, ctx: FreshContext<State, UserStoriesPageData>) {
-    const { state }_ = ctx; // Underscore if ctx.state.user is not directly used here, but currentUserId is
+    // Get user from state directly
     const currentUserId = ctx.state.user.id;
     const url = new URL(req.url);
     const queryProjectId = url.searchParams.get("projectId");
@@ -48,9 +51,9 @@ export const handler: Handlers<UserStoriesPageData, State> = {
     }
 
     if (queryProjectId) {
-      const parsedId = parseInt(queryProjectId, 10);
+      const parsedId = Number.parseInt(queryProjectId, 10);
       // Ensure the queried projectId is one the user has access to
-      if (!isNaN(parsedId) && projectsForUser.some(p => p.id === parsedId)) {
+      if (!Number.isNaN(parsedId) && projectsForUser.some(p => p.id === parsedId)) {
         selectedProjectId = parsedId;
       }
     } else if (projectsForUser.length > 0) {

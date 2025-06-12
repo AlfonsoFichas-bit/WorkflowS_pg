@@ -6,3 +6,17 @@ export const CANCELLED = 'CANCELLED'; // Using two Ls for consistency if other p
 
 export const SPRINT_STATUSES = [PLANNED, ACTIVE, COMPLETED, CANCELLED] as const;
 export type SprintStatus = typeof SPRINT_STATUSES[number];
+
+// Sprint type definition
+export interface Sprint {
+    id: number;
+    name: string;
+    projectId: number;
+    startDate: Date | null;
+    endDate: Date | null;
+    status: SprintStatus;
+    description: string | null;
+    createdAt: Date | null;
+    updatedAt: Date | null;
+    sprintName?: string | null; // For join operations
+}

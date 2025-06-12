@@ -3,8 +3,8 @@ import type { Handlers, PageProps } from "$fresh/server.ts";
 import type { State } from "./_middleware.ts";
 import { createProject, getAllProjects, getUserById, getProjectById, createTeamMember, getTeamsByProjectId, createTeam, getProjectMembers, deleteProject, updateUser, getAllUsers } from "../../utils/db.ts";
 import ProjectsPageIsland from "../../islands/ProjectsPageIsland.tsx";
-import { PROJECT_ROLES, ProjectRole, PROJECT_OWNER, SCRUM_MASTER } from "../../types/roles.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../utils/permissions.ts";
+import { PROJECT_ROLES, ProjectRole, PROJECT_OWNER, SCRUM_MASTER } from "../../src/types/roles.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../src/utils/permissions.ts";
 
 interface Project {
   id: number;

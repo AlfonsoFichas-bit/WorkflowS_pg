@@ -1,38 +1,6 @@
-import { useState } from "preact/hooks";
+import type { useState } from "preact/hooks";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
-
-interface Member {
-  id: number;
-  userId: number;
-  teamId: number;
-  role: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-  };
-}
-
-interface Project {
-  id: number;
-  name: string;
-  description: string | null;
-  ownerId: number;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-  members: Member[];
-}
-
-interface ProjectMembersIslandProps {
-  project: Project;
-  currentUser: {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-  };
-import { DEVELOPER, PROJECT_OWNER, SCRUM_MASTER, ProjectRole } from "../types/roles.ts"; // Added ProjectRole
+import { DEVELOPER, PROJECT_OWNER, SCRUM_MASTER, ProjectRole } from "../src/types/roles.ts"; // Added ProjectRole
 
 interface Member {
   id: number;

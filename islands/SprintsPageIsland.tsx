@@ -1,12 +1,14 @@
 import { useState, useEffect } from "preact/hooks";
-import { JSX } from "preact";
+import type { JSX } from "preact";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 import Modal from "../components/Modal.tsx";
-import type { User } from "../utils/types.ts";
-import type { Sprint, UserStory } from "../src/db/schema/index.ts";
+import type { User }  from "../utils/types.ts";
+import { sprints, userStories } from "../src/db/schema/index.ts";
+import type { Sprint } from "../src/types/sprint.ts";
+import type { UserStory } from "../src/types/userStory.ts";
 import type { ProjectWithUserRole } from "../routes/dashboard/sprints.tsx"; // Updated path
-import { SPRINT_STATUSES, SprintStatus, PLANNED } from "../types/sprint.ts";
-import { PROJECT_OWNER, SCRUM_MASTER } from "../types/roles.ts";
+import { SPRINT_STATUSES, SprintStatus, PLANNED, ACTIVE, COMPLETED } from "../src/types/sprint.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../src/types/roles.ts";
 
 interface SprintsPageIslandProps {
   user: User;
@@ -16,7 +18,12 @@ interface SprintsPageIslandProps {
 }
 
 // Use Omit for form data to exclude fields not directly set by user or derived
-type SprintFormData = Omit<Sprint, "id" | "createdAt" | "updatedAt" | "projectId"> & { projectId?: number };
+// Modificamos para que las fechas puedan ser strings en el formulario
+type SprintFormData = Omit<Sprint, "id" | "createdAt" | "updatedAt" | "projectId" | "startDate" | "endDate"> & { 
+  projectId?: number;
+  startDate: string;
+  endDate: string;
+};
 
 
 export default function SprintsPageIsland(
@@ -53,13 +60,17 @@ export default function SprintsPageIsland(
       if (!response.ok) throw new Error((await response.json()).error || "Failed to fetch sprints");
       const data = await response.json();
       setCurrentSprints(data.sprints || []);
-    } catch (e) { setError(e.message); setCurrentSprints([]); }
+    } catch (e) { 
+      const error = e instanceof Error ? e.message : String(e);
+      setError(error); 
+      setCurrentSprints([]); 
+    }
     finally { setIsLoading(false); }
   };
 
   const handleProjectChange = (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => {
     const newProjectIdStr = (e.target as HTMLSelectElement).value;
-    const newProjectId = newProjectIdStr ? parseInt(newProjectIdStr, 10) : null;
+    const newProjectId = newProjectIdStr ? Number.parseInt(newProjectIdStr, 10) : null;
     setSelectedProjectId(newProjectId);
     history.pushState(null, "", newProjectId ? `/dashboard/sprints?projectId=${newProjectId}` : "/dashboard/sprints");
     if (newProjectId) fetchSprints(newProjectId);
@@ -115,7 +126,10 @@ export default function SprintsPageIsland(
 
       setShowCreateEditModal(false);
       if (dataToSend.projectId) fetchSprints(dataToSend.projectId);
-    } catch (e) { setError(e.message); }
+    } catch (e) { 
+      const error = e instanceof Error ? e.message : String(e);
+      setError(error); 
+    }
     finally { setIsLoading(false); }
   };
 
@@ -126,7 +140,10 @@ export default function SprintsPageIsland(
       const response = await fetch(`/api/sprints/${sprint.id}`, { method: "DELETE" });
       if (!response.ok) throw new Error((await response.json()).error || "Failed to delete sprint");
       fetchSprints(sprint.projectId);
-    } catch (e) { setError(e.message); }
+    } catch (e) { 
+      const error = e instanceof Error ? e.message : String(e);
+      setError(error); 
+    }
     finally { setIsLoading(false); }
   };
 
@@ -156,7 +173,10 @@ export default function SprintsPageIsland(
     try {
       await fetchProjectAndSprintStories(sprint);
       setShowAssignStoriesModal(true);
-    } catch (e) { setError(e.message); }
+    } catch (e) { 
+      const error = e instanceof Error ? e.message : String(e);
+      setError(error); 
+    }
     finally { setIsLoading(false); }
   };
 
@@ -176,7 +196,10 @@ export default function SprintsPageIsland(
        if (!response.ok) throw new Error((await response.json()).error || `Failed to ${isAssigning ? 'assign' : 'unassign'} story`);
 
       await fetchProjectAndSprintStories(selectedSprintForAssignment); // Refresh lists in modal
-    } catch (e) { setError(e.message); }
+    } catch (e) { 
+      const error = e instanceof Error ? e.message : String(e);
+      setError(error); 
+    }
     finally { setIsLoading(false); }
   };
 
@@ -185,7 +208,7 @@ export default function SprintsPageIsland(
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">Sprints</h1>
         {canManageSprints && selectedProjectId && (
-          <button onClick={openCreateSprintModal} class="btn-primary" disabled={isLoading}>
+          <button type="button" onClick={openCreateSprintModal} class="btn-primary" disabled={isLoading}>
             <MaterialSymbol icon="add" className="mr-1" /> Create Sprint
           </button>
         )}
@@ -216,7 +239,7 @@ export default function SprintsPageIsland(
             <div key={sprint.id} class="card bg-white dark:bg-gray-800 shadow-md rounded-lg p-4">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{sprint.name}</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400">
-                {new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}
+                {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : 'N/A'} - {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString() : 'N/A'}
               </p>
               <p class="text-sm text-gray-600 dark:text-gray-400">Status: <span class={`px-2 py-0.5 text-xs rounded-full font-semibold ${sprint.status === PLANNED ? 'bg-blue-100 text-blue-700' : sprint.status === ACTIVE ? 'bg-green-100 text-green-700' : sprint.status === COMPLETED ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>{sprint.status}</span></p>
               {/* Placeholder for story count/points - requires fetching stories per sprint or aggregating */}
@@ -271,7 +294,7 @@ export default function SprintsPageIsland(
       )}
 
       {showAssignStoriesModal && selectedSprintForAssignment && (
-        <Modal show={showAssignStoriesModal} onClose={() => !isLoading && setShowAssignStoriesModal(false)} maxWidth="3xl">
+        <Modal show={showAssignStoriesModal} onClose={() => !isLoading && setShowAssignStoriesModal(false)} maxWidth="2xl">
           <div class="p-6">
             <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Manage User Stories for: {selectedSprintForAssignment.name}</h2>
             {error && <div class="alert-danger mb-4">{error}</div>}
@@ -284,7 +307,7 @@ export default function SprintsPageIsland(
                     {availableUserStories.filter(us => us.sprintId !== selectedSprintForAssignment.id).map(us => (
                       <li key={us.id} class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded text-sm text-gray-700 dark:text-gray-300">
                         <span>{us.title} (SP: {us.storyPoints || 'N/A'}) {us.sprintId ? '(In another sprint)' : '(Backlog)'}</span>
-                        <button onClick={() => handleStoryAssignmentChange(us.id, true)} disabled={isLoading} class="btn-primary btn-xs">Assign <MaterialSymbol icon="arrow_forward" size="sm"/></button>
+                        <button type="button" onClick={() => handleStoryAssignmentChange(us.id, true)} disabled={isLoading} class="btn-primary btn-xs">Assign <MaterialSymbol icon="arrow_forward" size={24}/></button>
                       </li>
                     ))}
                     {availableUserStories.filter(us => us.sprintId !== selectedSprintForAssignment.id).length === 0 && !isLoading && <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No available stories.</p>}
@@ -295,7 +318,7 @@ export default function SprintsPageIsland(
                   <ul class="h-64 overflow-y-auto border rounded p-2 dark:border-gray-600 space-y-1 bg-gray-50 dark:bg-gray-700">
                     {assignedUserStories.map(us => (
                       <li key={us.id} class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded text-sm text-gray-700 dark:text-gray-300">
-                        <button onClick={() => handleStoryAssignmentChange(us.id, false)} disabled={isLoading} class="btn-danger btn-xs"><MaterialSymbol icon="arrow_back" size="sm"/> Unassign</button>
+                        <button type="button" onClick={() => handleStoryAssignmentChange(us.id, false)} disabled={isLoading} class="btn-danger btn-xs"><MaterialSymbol icon="arrow_back" size={24}/> Unassign</button>
                         <span>{us.title} (SP: {us.storyPoints || 'N/A'})</span>
                       </li>
                     ))}

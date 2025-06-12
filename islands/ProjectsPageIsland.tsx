@@ -3,7 +3,8 @@ import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 import Modal from "../components/Modal.tsx";
 import CreateProjectFormIsland from "./CreateProjectFormIsland.tsx";
 import AddUserToProjectIsland from "./AddUserToProjectIsland.tsx";
-import { PROJECT_OWNER, SCRUM_MASTER, ProjectRole } from "../types/roles.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../src/types/roles.ts";
+import type { ProjectRole } from "../src/types/roles.ts";
 
 interface Project {
   id: number;
@@ -40,7 +41,7 @@ interface ProjectsPageIslandProps {
   projectsList: Project[];
 }
 
-export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageIslandProps) {
+export default function ProjectsPageIsland({ user: _user, projectsList }: ProjectsPageIslandProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -203,7 +204,6 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
                       className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center"
                     >
                       <MaterialSymbol icon="group" className="mr-1" />
-                      Ver Miembros
                     </a>
                     {(project.currentUserRole === PROJECT_OWNER || project.currentUserRole === SCRUM_MASTER) && (
                       <button
@@ -212,7 +212,6 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
                         className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
                       >
                         <MaterialSymbol icon="person_add" className="mr-1" />
-                        Agregar Usuario
                       </button>
                     )}
                     {project.currentUserRole === PROJECT_OWNER && (
@@ -222,7 +221,6 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
                         className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 flex items-center"
                       >
                         <MaterialSymbol icon="delete" className="mr-1" />
-                        Eliminar
                       </button>
                     )}
                   </div>
