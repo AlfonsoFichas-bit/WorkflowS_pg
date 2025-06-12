@@ -2,30 +2,7 @@ import { useState, useEffect } from "preact/hooks";
 import type { JSX } from "preact";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
-
-interface AddUserToProjectProps {
-  projectId: number;
-  onSubmit: (userData: {
-    userId: number;
-    role: string;
-  }) => Promise<void>;
-  onCancel: () => void;
-  isSubmitting: boolean;
-}
-
-export default function AddUserToProjectIsland({
-  projectId,
-  onSubmit,
-  onCancel,
-  isSubmitting = false,
-}: AddUserToProjectProps) {
-import { DEVELOPER, SCRUM_MASTER } from "../types/roles.ts";
+// First block of interfaces and incomplete function definition removed.
 
 interface User {
   id: number;
