@@ -57,6 +57,21 @@ WorkflowS_pg/
    ```
    deno task start
    ```
+   
+   **Nota**: Al iniciar el servidor con `deno task start`, automáticamente se realizarán las siguientes acciones:
+   1. Se configurará la base de datos desde cero (eliminando tablas existentes si las hay)
+   2. Se crearán todas las tablas con la estructura correcta
+   3. Se creará un usuario administrador por defecto con las siguientes credenciales:
+      - Email: admin@workflow.com
+      - Contraseña: admin123
+   4. Se iniciará el servidor de desarrollo
+
+   Si solo necesitas configurar la base de datos y crear el usuario administrador sin iniciar el servidor, puedes ejecutar:
+   ```
+   deno task setup:db
+   ```
+   
+   **Importante**: La primera vez que ejecutes `deno task start` o `deno task setup:db`, se eliminará cualquier dato existente en la base de datos y se creará una estructura limpia. Esto garantiza que la aplicación funcione correctamente desde el principio.
 
 Esto vigilará el directorio del proyecto y se reiniciará según sea necesario.
 

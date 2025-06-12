@@ -5,14 +5,17 @@
     "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
     "manifest": "deno task cli manifest $(pwd)",
     "init": "deno run -A --unstable src/db/init.ts",
-    "start": "deno run -A --watch=static/,routes/ dev.ts && deno task init",
+    "setup:db": "deno run -A --env src/scripts/setup-db.ts",
+    "start": "deno task setup:db && deno run -A --watch=static/,routes/ dev.ts",
     "build": "deno run -A dev.ts build",
     "preview": "deno run -A main.ts",
     "update": "deno run -A -r https://fresh.deno.dev/update .",
     "db:generate": "deno run -A npm:drizzle-kit generate",
     "db:migrate": "deno run -A --env ./src/db/migrate.ts",
     "db:test": "deno run -A --env ./src/script.ts",
-    "db:drop": "deno run -A --env ./src/db/drop-tables.ts"
+    "db:drop": "deno run -A --env ./src/db/drop-tables.ts",
+    "setup": "deno run --allow-net --allow-env --allow-read --allow-run src/scripts/setup.ts",
+    "create:admin": "deno run --allow-net --allow-env --allow-read src/scripts/init-admin.ts"
   },
   "lint": {
     "rules": {
