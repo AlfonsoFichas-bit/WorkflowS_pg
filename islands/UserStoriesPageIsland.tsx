@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { Button } from "../components/Button.tsx";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
-import { Modal } from "../components/Modal.tsx";
+import Modal from "../components/Modal.tsx";
 
 interface UserStory {
   id: number;
@@ -86,14 +86,14 @@ export default function UserStoriesPageIsland({
 
     // If project changes, update available sprints
     if (name === "projectId" && value) {
-      handleProjectChange(parseInt(value));
+      handleProjectChange(Number.parseInt(value));
     }
   };
 
   // Handle project selection change for filtering
   const handleProjectFilterChange = (e: Event) => {
     const target = e.target as HTMLSelectElement;
-    const projectId = target.value ? parseInt(target.value) : undefined;
+    const projectId = target.value ? Number.parseInt(target.value) : undefined;
     setCurrentProject(projectId);
     setCurrentSprint(undefined);
     
@@ -108,7 +108,7 @@ export default function UserStoriesPageIsland({
   // Handle sprint selection change for filtering
   const handleSprintFilterChange = (e: Event) => {
     const target = e.target as HTMLSelectElement;
-    const sprintId = target.value ? parseInt(target.value) : undefined;
+    const sprintId = target.value ? Number.parseInt(target.value) : undefined;
     setCurrentSprint(sprintId);
     
     // Redirect to the user stories page with the selected sprint
@@ -172,11 +172,11 @@ export default function UserStoriesPageIsland({
           title: formData.title,
           description: formData.description,
           acceptanceCriteria: formData.acceptanceCriteria,
-          projectId: parseInt(formData.projectId.toString()),
-          sprintId: formData.sprintId ? parseInt(formData.sprintId.toString()) : null,
+          projectId:Number.parseInt(formData.projectId.toString()),
+          sprintId: formData.sprintId ? Number.parseInt(formData.sprintId.toString()) : null,
           status: formData.status,
           priority: formData.priority,
-          storyPoints: formData.storyPoints ? parseInt(formData.storyPoints.toString()) : null
+          storyPoints: formData.storyPoints ? Number.parseInt(formData.storyPoints.toString()) : null
         }),
       });
 
@@ -384,7 +384,7 @@ export default function UserStoriesPageIsland({
                         <a href={`/dashboard/user-stories/${story.id}`} class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
                           Ver
                         </a>
-                        <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                        <button type="button" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
                           Eliminar
                         </button>
                       </td>

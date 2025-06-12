@@ -1,4 +1,4 @@
-import { JSX } from "preact";
+import type { JSX } from "preact";
 import { cn } from "../utils/hooks.ts";
 
 interface MaterialSymbolProps extends JSX.HTMLAttributes<HTMLSpanElement> {

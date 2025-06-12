@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { Button } from "../components/Button.tsx";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
-import { Modal } from "../components/Modal.tsx";
+import Modal from "../components/Modal.tsx";
 
 interface Task {
   id: number;
@@ -98,14 +98,14 @@ export default function TasksPageIsland({
 
     // If sprint changes, update available user stories
     if (name === "sprintId" && value) {
-      handleSprintChange(parseInt(value));
+      handleSprintChange(Number.parseInt(value));
     }
   };
 
   // Handle sprint selection change for filtering
   const handleSprintFilterChange = (e: Event) => {
     const target = e.target as HTMLSelectElement;
-    const sprintId = target.value ? parseInt(target.value) : undefined;
+    const sprintId = target.value ? Number.parseInt(target.value) : undefined;
     setCurrentSprint(sprintId);
     
     // Redirect to the tasks page with the selected sprint
@@ -119,7 +119,7 @@ export default function TasksPageIsland({
   // Handle assignee selection change for filtering
   const handleAssigneeFilterChange = (e: Event) => {
     const target = e.target as HTMLSelectElement;
-    const assigneeId = target.value ? parseInt(target.value) : undefined;
+    const assigneeId = target.value ?Number.parseInt(target.value) : undefined;
     setCurrentAssignee(assigneeId);
     
     // Redirect to the tasks page with the selected assignee
@@ -174,11 +174,11 @@ export default function TasksPageIsland({
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
-          sprintId: formData.sprintId ? parseInt(formData.sprintId.toString()) : null,
-          assigneeId: formData.assigneeId ? parseInt(formData.assigneeId.toString()) : null,
+          sprintId: formData.sprintId ?Number.parseInt(formData.sprintId.toString()) : null,
+          assigneeId: formData.assigneeId ?Number.parseInt(formData.assigneeId.toString()) : null,
           status: formData.status,
           priority: formData.priority,
-          storyPoints: formData.storyPoints ? parseInt(formData.storyPoints.toString()) : null
+          storyPoints: formData.storyPoints ?Number.parseInt(formData.storyPoints.toString()) : null
         }),
       });
 
@@ -391,7 +391,7 @@ export default function TasksPageIsland({
                       <a href={`/dashboard/tasks/${task.id}`} class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
                         Ver
                       </a>
-                      <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                      <button type="button" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
                         Eliminar
                       </button>
                     </td>
