@@ -3,8 +3,8 @@ import type { Handlers, PageProps } from "$fresh/server.ts";
 import type { State } from "./_middleware.ts";
 import { createProject, getAllProjects, getUserById, getProjectById, createTeamMember, getTeamsByProjectId, createTeam, getProjectMembers, deleteProject, updateUser, getAllUsers } from "../../utils/db.ts";
 import ProjectsPageIsland from "../../islands/ProjectsPageIsland.tsx";
-import { PROJECT_ROLES, ProjectRole, PROJECT_OWNER, SCRUM_MASTER } from "../../src/types/roles.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../src/utils/permissions.ts";
+import { PROJECT_ROLES, ProjectRole, PROJECT_OWNER, SCRUM_MASTER } from "../../types/roles.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../utils/permissions.ts";
 
 interface Project {
   id: number;
@@ -83,14 +83,14 @@ export const handler: Handlers<ProjectsData, State> = {
 };
 
 // Manejador para obtener usuarios disponibles para agregar a proyectos
-export const availableUsersHandler: Handlers = {
+export const availableUsersHandler: Handlers<unknown, State> = {
   async GET(_req, ctx) {
     try {
       // Obtener todos los usuarios excepto el actual
       const allUsers = await getAllUsers();
-      // Filtrar el usuario actual si existe
-      const currentUser = ctx.state.user as { id: number } | undefined;
-      const users = currentUser ? allUsers.filter(user => user.id !== currentUser.id) : allUsers;
+      // ctx.state.user is guaranteed by middleware for dashboard routes
+      const currentUserId = ctx.state.user.id;
+      const users = allUsers.filter(user => user.id !== currentUserId);
 
       return new Response(JSON.stringify({ users }), {
         status: 200,
@@ -108,11 +108,11 @@ export const availableUsersHandler: Handlers = {
 };
 
 // Manejador para eliminar un proyecto
-export const deleteProjectHandler: Handlers = {
+export const deleteProjectHandler: Handlers<unknown, State> = {
   async DELETE(req, ctx) {
     try {
       const projectId = Number.parseInt(ctx.params.id);
-      const userId = ctx.state.user.id;
+      const userId = ctx.state.user.id; // Already correctly accessed
 
       if (Number.isNaN(projectId)) {
         return new Response(JSON.stringify({ error: "ID de proyecto inválido" }), {
@@ -165,11 +165,11 @@ export const deleteProjectHandler: Handlers = {
   }
 };
 
-export const addUserToProjectHandler: Handlers = {
+export const addUserToProjectHandler: Handlers<unknown, State> = {
   async POST(req, ctx) {
     try {
       const projectId = Number.parseInt(ctx.params.id);
-      const currentUserId = ctx.state.user.id;
+      const currentUserId = ctx.state.user.id; // Already correctly accessed
       const { userId, role }: { userId: number; role: ProjectRole } = await req.json();
 
       // Verificar permisos para agregar usuarios

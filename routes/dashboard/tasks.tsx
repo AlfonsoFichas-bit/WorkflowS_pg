@@ -1,14 +1,21 @@
 import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import type { State } from "./_middleware.ts";
-import { getAllTasks, getTasksBySprintId, getTasksByAssigneeId, getAllSprints, getAllUserStories, getAllProjects, getUserStoriesBySprintId } from "../../src/db/db.ts";
+import { State } from "./_middleware.ts";
+import { getAllTasks, getTasksBySprintId, getTasksByAssigneeId, getAllSprints, getAllUserStories, getAllProjects, getUserStoriesBySprintId } from "../../utils/db.ts";
 import TasksPageIsland from "../../islands/TasksPageIsland.tsx";
 
-// Import the schema
-import { tasks as tasksSchema } from "../../src/db/schema/index.ts";
-
-// Define type based on schema
-type Task = typeof tasksSchema.$inferSelect;
+interface Task {
+  id: number;
+  title: string;
+  description: string | null;
+  sprintId: number | null;
+  assigneeId: number | null;
+  status: string;
+  priority: string;
+  storyPoints: number | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
 
 interface Sprint {
   id: number;
@@ -16,13 +23,12 @@ interface Sprint {
   projectId: number;
 }
 
-// Import the schema for user stories
-import { userStories as userStoriesSchema } from "../../src/db/schema/index.ts";
-
-// Define type based on schema with additional sprintName property
-type UserStory = typeof userStoriesSchema.$inferSelect & { 
-  sprintName?: string | null 
-};
+interface UserStory {
+  id: number;
+  title: string;
+  projectId: number;
+  sprintId: number | null;
+}
 
 interface Project {
   id: number;
@@ -59,8 +65,8 @@ export const handler: Handlers<TasksData, State> = {
 
     // Si se especifica un sprint, obtener las tareas de ese sprint
     if (sprintId) {
-      const sprintIdNum = Number.parseInt(sprintId);
-      if (!Number.isNaN(sprintIdNum)) {
+      const sprintIdNum = parseInt(sprintId);
+      if (!isNaN(sprintIdNum)) {
         tasks = await getTasksBySprintId(sprintIdNum);
         selectedSprintId = sprintIdNum;
 
@@ -70,8 +76,8 @@ export const handler: Handlers<TasksData, State> = {
     } 
     // Si se especifica un assignee, obtener las tareas asignadas a ese usuario
     else if (assigneeId) {
-      const assigneeIdNum = Number.parseInt(assigneeId);
-      if (!Number.isNaN(assigneeIdNum)) {
+      const assigneeIdNum = parseInt(assigneeId);
+      if (!isNaN(assigneeIdNum)) {
         tasks = await getTasksByAssigneeId(assigneeIdNum);
         selectedAssigneeId = assigneeIdNum;
       }

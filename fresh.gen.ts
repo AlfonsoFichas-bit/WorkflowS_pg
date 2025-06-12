@@ -8,11 +8,8 @@ import * as $api_joke from "./routes/api/joke.ts";
 import * as $api_rubric_criteria from "./routes/api/rubric-criteria.ts";
 import * as $api_rubrics from "./routes/api/rubrics.ts";
 import * as $api_sprints from "./routes/api/sprints.ts";
-import * as $api_sprints_id_ from "./routes/api/sprints/[id].ts";
-import * as $api_sprints_id_user_stories from "./routes/api/sprints/[id]/user-stories.ts";
 import * as $api_tasks from "./routes/api/tasks.ts";
 import * as $api_user_stories from "./routes/api/user-stories.ts";
-import * as $api_user_stories_id_ from "./routes/api/user-stories/[id].ts";
 import * as $auth_login from "./routes/auth/login.tsx";
 import * as $auth_logout from "./routes/auth/logout.ts";
 import * as $auth_register from "./routes/auth/register.tsx";
@@ -58,11 +55,8 @@ const manifest = {
     "./routes/api/rubric-criteria.ts": $api_rubric_criteria,
     "./routes/api/rubrics.ts": $api_rubrics,
     "./routes/api/sprints.ts": $api_sprints,
-    "./routes/api/sprints/[id].ts": $api_sprints_id_,
-    "./routes/api/sprints/[id]/user-stories.ts": $api_sprints_id_user_stories,
     "./routes/api/tasks.ts": $api_tasks,
     "./routes/api/user-stories.ts": $api_user_stories,
-    "./routes/api/user-stories/[id].ts": $api_user_stories_id_,
     "./routes/auth/login.tsx": $auth_login,
     "./routes/auth/logout.ts": $auth_logout,
     "./routes/auth/register.tsx": $auth_register,

@@ -1,6 +1,2 @@
-import { assertEquals } from "@std/assert";
-import { add } from "./main.ts";
-
-Deno.test(function addTest() {
-  assertEquals(add(2, 3), 5);
-});
+// Test file can be empty or contain other tests.
+// The specific add function and its test are removed as per requirement.

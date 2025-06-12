@@ -1,28 +1,27 @@
-import { Handlers, State } from "$fresh/server.ts";
+import { Handlers } from "$fresh/server.ts";
+import type { ApiState } from "../../_middleware.ts";
 import {
   getSprintById,
   assignUserStoryToSprint,
   getUserStoriesBySprintId,
   getUserStoryById, // To verify user story exists and belongs to the correct project
 } from "../../../../src/db/db.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../../src/types/roles.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../../../utils/permissions.ts";
+import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../../types/roles.ts";
 import { userStories } from "../../../../src/db/schema/index.ts";
 
 type UserStory = typeof userStories.$inferSelect;
 
-export const handler: Handlers<UserStory[] | UserStory | null, State> = {
+export const handler: Handlers<UserStory[] | UserStory | null, ApiState> = {
   // GET /api/sprints/:id/user-stories (Get all user stories for this sprint)
   async GET(_req, ctx) {
     const sprintId = parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
     if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     try {
       const sprintResult = await getSprintById(sprintId);
@@ -47,14 +46,12 @@ export const handler: Handlers<UserStory[] | UserStory | null, State> = {
   // POST /api/sprints/:id/user-stories (Assign a user story to this sprint)
   async POST(req, ctx) {
     const sprintId = parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
     if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     let body;
     try {
@@ -93,7 +90,8 @@ export const handler: Handlers<UserStory[] | UserStory | null, State> = {
       return new Response(JSON.stringify({ success: true, userStory: updatedStoryResult[0] }), { status: 200 });
     } catch (error) {
       console.error("Error assigning user story to sprint:", error);
-      return new Response(JSON.stringify({ error: "Failed to assign user story to sprint", details: error.message }), { status: 500 });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return new Response(JSON.stringify({ error: "Failed to assign user story to sprint", details: errorMessage }), { status: 500 });
     }
   },
 
@@ -103,7 +101,7 @@ export const handler: Handlers<UserStory[] | UserStory | null, State> = {
     // Note: Fresh's router automatically decodes URI components for params.
     const userStoryIdParam = ctx.params.userStoryId;
     const userStoryId = parseInt(userStoryIdParam, 10);
-    const currentUserId = ctx.state.user?.id;
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
     if (isNaN(sprintId)) {
         return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
@@ -111,9 +109,7 @@ export const handler: Handlers<UserStory[] | UserStory | null, State> = {
     if (isNaN(userStoryId)) {
         return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-        return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     try {
         const sprintResult = await getSprintById(sprintId);
@@ -141,7 +137,8 @@ export const handler: Handlers<UserStory[] | UserStory | null, State> = {
 
     } catch (error) {
         console.error("Error removing user story from sprint:", error);
-        return new Response(JSON.stringify({ error: "Failed to remove user story from sprint", details: error.message }), { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return new Response(JSON.stringify({ error: "Failed to remove user story from sprint", details: errorMessage }), { status: 500 });
     }
   }
 };

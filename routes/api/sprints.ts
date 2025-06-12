@@ -1,4 +1,5 @@
-import { Handlers, State } from "$fresh/server.ts";
+import { Handlers } from "$fresh/server.ts";
+import type { ApiState } from "./_middleware.ts";
 import {
   createSprint,
   getSprintsByProjectId,
@@ -7,20 +8,18 @@ import {
   // deleteSprint, // Will be in [id].ts
   // getAllSprints, // Not required by current subtask for this endpoint
 } from "../../src/db/db.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../src/types/roles.ts";
-import { PLANNED, SprintStatus } from "../../src/types/sprint.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../utils/permissions.ts";
+import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../types/roles.ts";
+import { PLANNED, SprintStatus } from "../../types/sprint.ts";
 import { sprints } from "../../src/db/schema/index.ts"; // For type inference
 
 type NewSprint = typeof sprints.$inferInsert;
 
-export const handler: Handlers<unknown, State> = {
+export const handler: Handlers<unknown, ApiState> = {
   // POST /api/sprints (Create a new sprint)
   async POST(req, ctx) {
-    const currentUserId = ctx.state.user?.id;
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // ctx.state.user.id is guaranteed by ApiState and middleware
+    const currentUserId = ctx.state.user.id;
 
     try {
       const body = await req.json();
@@ -68,7 +67,8 @@ export const handler: Handlers<unknown, State> = {
       });
     } catch (error) {
       console.error("Error al crear sprint:", error);
-      return new Response(JSON.stringify({ error: "Error al crear el sprint", details: error.message }), {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return new Response(JSON.stringify({ error: "Error al crear el sprint", details: errorMessage }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -77,10 +77,8 @@ export const handler: Handlers<unknown, State> = {
 
   // GET /api/sprints?projectId=<projectId> (Get all sprints for a project)
   async GET(req, ctx) {
-    const currentUserId = ctx.state.user?.id;
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // ctx.state.user.id is guaranteed by ApiState and middleware
+    const currentUserId = ctx.state.user.id;
 
     try {
       const url = new URL(req.url);

@@ -1,30 +1,29 @@
-import { Handlers, State } from "$fresh/server.ts";
+import { Handlers } from "$fresh/server.ts";
+import type { ApiState } from "../_middleware.ts";
 import {
   getSprintById,
   updateSprint,
   deleteSprint,
   assignUserStoryToSprint, // For disassociating user stories on delete
 } from "../../../src/db/db.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../src/types/roles.ts";
-import { SprintStatus } from "../../../src/types/sprint.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../../utils/permissions.ts";
+import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../types/roles.ts";
+import { SprintStatus } from "../../../types/sprint.ts";
 import { sprints, userStories } from "../../../src/db/schema/index.ts"; // For type inference
 
 type Sprint = typeof sprints.$inferSelect;
 type SprintUpdate = Partial<Omit<Sprint, "id" | "createdAt" | "updatedAt" | "projectId">>;
 
-export const handler: Handlers<Sprint | null, State> = {
+export const handler: Handlers<Sprint | null, ApiState> = {
   // GET /api/sprints/:id
   async GET(_req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const sprintId = parseInt(ctx.params.id, 10);
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId as middleware handles it
 
     try {
       const sprintResult = await getSprintById(sprintId);
@@ -47,15 +46,13 @@ export const handler: Handlers<Sprint | null, State> = {
 
   // PUT /api/sprints/:id
   async PUT(req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const sprintId = parseInt(ctx.params.id, 10);
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     let body;
     try {
@@ -102,21 +99,20 @@ export const handler: Handlers<Sprint | null, State> = {
       return new Response(JSON.stringify({ success: true, sprint: updatedSprintResult[0] }), { status: 200 });
     } catch (error) {
       console.error("Error updating sprint:", error);
-      return new Response(JSON.stringify({ error: "Failed to update sprint", details: error.message }), { status: 500 });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return new Response(JSON.stringify({ error: "Failed to update sprint", details: errorMessage }), { status: 500 });
     }
   },
 
   // DELETE /api/sprints/:id
   async DELETE(_req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const sprintId = parseInt(ctx.params.id, 10);
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     try {
       const sprintResult = await getSprintById(sprintId);

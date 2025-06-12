@@ -1,7 +1,3 @@
-// Este archivo contiene código de ejemplo que ya no se utiliza
-// Se mantiene como referencia pero no debe ejecutarse
-
-/*
 import {
   deleteDinosaurById,
   deleteTask,
@@ -67,7 +63,4 @@ async function main() {
 }
 
 // Ejecutar la función principal
-// await main();
-*/
-
-console.log("Este script está deshabilitado. Utiliza los scripts actualizados en src/scripts/ en su lugar.");
+await main();

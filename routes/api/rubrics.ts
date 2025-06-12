@@ -1,7 +1,9 @@
 import { Handlers } from "$fresh/server.ts";
-import { createRubric, deleteRubric, getRubricById, updateRubric, getAllRubrics, getRubricsByCreatorId } from "../../utils/db.ts";
+import { ApiState } from "./_middleware.ts"; // Import ApiState
+import { createRubric, deleteRubric, getRubricById, updateRubric, getAllRubrics, getRubricsByCreatorId } from "../../src/db/db.ts"; // Corrected import path
 
-export const handler: Handlers = {
+// Define specific data types for request/response if needed
+export const handler: Handlers<unknown, ApiState> = { // Use ApiState
   async POST(req, ctx) {
     try {
       const body = await req.json();
@@ -16,16 +18,13 @@ export const handler: Handlers = {
       }
 
       // Obtener el ID del usuario del contexto
-      const user = ctx.state.user;
-      if (!user || !user.id) {
-        return new Response(JSON.stringify({ error: "Usuario no autenticado" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      const currentUserId = ctx.state.user.id;
+      const currentUserRole = ctx.state.user.role;
 
       // Verificar que el usuario es profesor o administrador
-      if (user.role !== "teacher" && user.role !== "admin") {
+      // Note: The existing roles "teacher" might need to be mapped or checked against PROJECT_OWNER, SCRUM_MASTER, or a global admin role.
+      // For now, retaining original logic but using new state structure.
+      if (currentUserRole !== "teacher" && currentUserRole !== "admin") {
         return new Response(JSON.stringify({ error: "No tienes permisos para crear rúbricas" }), {
           status: 403,
           headers: { "Content-Type": "application/json" },
@@ -36,7 +35,7 @@ export const handler: Handlers = {
       const newRubric = await createRubric({
         name,
         description,
-        creatorId: user.id,
+        creatorId: currentUserId,
         maxScore: maxScore || 100,
       });
 
@@ -77,16 +76,11 @@ export const handler: Handlers = {
       }
 
       // Obtener el ID del usuario del contexto
-      const user = ctx.state.user;
-      if (!user || !user.id) {
-        return new Response(JSON.stringify({ error: "Usuario no autenticado" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      const currentUserId = ctx.state.user.id;
+      const currentUserRole = ctx.state.user.role;
 
       // Verificar que el usuario es el creador de la rúbrica o un administrador
-      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+      if (rubric[0].creatorId !== currentUserId && currentUserRole !== "admin") {
         return new Response(JSON.stringify({ error: "No tienes permisos para modificar esta rúbrica" }), {
           status: 403,
           headers: { "Content-Type": "application/json" },
@@ -143,16 +137,11 @@ export const handler: Handlers = {
       }
 
       // Obtener el ID del usuario del contexto
-      const user = ctx.state.user;
-      if (!user || !user.id) {
-        return new Response(JSON.stringify({ error: "Usuario no autenticado" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      const currentUserId = ctx.state.user.id;
+      const currentUserRole = ctx.state.user.role;
 
       // Verificar que el usuario es el creador de la rúbrica o un administrador
-      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+      if (rubric[0].creatorId !== currentUserId && currentUserRole !== "admin") {
         return new Response(JSON.stringify({ error: "No tienes permisos para eliminar esta rúbrica" }), {
           status: 403,
           headers: { "Content-Type": "application/json" },
@@ -224,8 +213,9 @@ export const handler: Handlers = {
 
       // Si no se proporciona ningún filtro, obtener todas las rúbricas
       // Verificar que el usuario tiene permisos para ver todas las rúbricas
-      const user = ctx.state.user;
-      if (!user || (user.role !== "teacher" && user.role !== "admin")) {
+      const currentUserRole = ctx.state.user.role;
+      // Retaining original logic: only teacher or admin can see all rubrics if no specific ID/creatorId is given.
+      if (currentUserRole !== "teacher" && currentUserRole !== "admin") {
         return new Response(JSON.stringify({ error: "No tienes permisos para ver todas las rúbricas" }), {
           status: 403,
           headers: { "Content-Type": "application/json" },

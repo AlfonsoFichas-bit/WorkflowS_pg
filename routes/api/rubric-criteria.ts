@@ -1,4 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
+import { ApiState } from "./_middleware.ts"; // Import ApiState
 import { 
   createRubricCriterion, 
   deleteRubricCriterion, 
@@ -6,9 +7,11 @@ import {
   updateRubricCriterion, 
   getRubricCriteriaByRubricId,
   getRubricById
-} from "../../utils/db.ts";
+} from "../../src/db/db.ts"; // Corrected import path
 
-export const handler: Handlers = {
+// Define specific data types for request/response if needed, or use unknown/any
+// For example: type RubricCriterionData = { rubricId: number, name: string, ... };
+export const handler: Handlers<unknown, ApiState> = { // Use ApiState
   async POST(req, ctx) {
     try {
       const body = await req.json();
@@ -39,16 +42,12 @@ export const handler: Handlers = {
       }
 
       // Obtener el ID del usuario del contexto
-      const user = ctx.state.user;
-      if (!user || !user.id) {
-        return new Response(JSON.stringify({ error: "Usuario no autenticado" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      // ctx.state.user is now typed and guaranteed by middleware
+      const currentUserId = ctx.state.user.id;
+      const currentUserRole = ctx.state.user.role;
 
       // Verificar que el usuario es el creador de la rúbrica o un administrador
-      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+      if (rubric[0].creatorId !== currentUserId && currentUserRole !== "admin") {
         return new Response(JSON.stringify({ error: "No tienes permisos para añadir criterios a esta rúbrica" }), {
           status: 403,
           headers: { "Content-Type": "application/json" },
@@ -110,16 +109,11 @@ export const handler: Handlers = {
       }
 
       // Obtener el ID del usuario del contexto
-      const user = ctx.state.user;
-      if (!user || !user.id) {
-        return new Response(JSON.stringify({ error: "Usuario no autenticado" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      const currentUserId = ctx.state.user.id;
+      const currentUserRole = ctx.state.user.role;
 
       // Verificar que el usuario es el creador de la rúbrica o un administrador
-      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+      if (rubric[0].creatorId !== currentUserId && currentUserRole !== "admin") {
         return new Response(JSON.stringify({ error: "No tienes permisos para modificar este criterio" }), {
           status: 403,
           headers: { "Content-Type": "application/json" },
@@ -186,16 +180,11 @@ export const handler: Handlers = {
       }
 
       // Obtener el ID del usuario del contexto
-      const user = ctx.state.user;
-      if (!user || !user.id) {
-        return new Response(JSON.stringify({ error: "Usuario no autenticado" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      const currentUserId = ctx.state.user.id;
+      const currentUserRole = ctx.state.user.role;
 
       // Verificar que el usuario es el creador de la rúbrica o un administrador
-      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+      if (rubric[0].creatorId !== currentUserId && currentUserRole !== "admin") {
         return new Response(JSON.stringify({ error: "No tienes permisos para eliminar este criterio" }), {
           status: 403,
           headers: { "Content-Type": "application/json" },
@@ -218,7 +207,7 @@ export const handler: Handlers = {
     }
   },
 
-  async GET(req, ctx) {
+  async GET(req, _ctx) { // ctx might not be needed if not accessing state
     try {
       const url = new URL(req.url);
       const id = url.searchParams.get("id");

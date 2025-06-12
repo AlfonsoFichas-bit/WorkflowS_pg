@@ -16,18 +16,3 @@ export const HIGHEST = 'HIGHEST';
 
 export const USER_STORY_PRIORITIES = [LOWEST, LOW, MEDIUM, HIGH, HIGHEST] as const;
 export type UserStoryPriority = typeof USER_STORY_PRIORITIES[number];
-
-// User Story type definition
-export interface UserStory {
-  id: number;
-  title: string;
-  description: string | null;
-  projectId: number;
-  sprintId: number | null;
-  status: UserStoryStatus;
-  priority: UserStoryPriority;
-  storyPoints: number | null;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-  sprintName?: string | null; // For join operations
-}

@@ -1,10 +1,10 @@
 import { DashboardLayout } from "../../../../components/DashboardLayout.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import type { State } from "../../_middleware.ts";
+import { State } from "../../_middleware.ts";
 import { getProjectById, getProjectMembers } from "../../../../utils/db.ts";
 import ProjectMembersIsland from "../../../../islands/ProjectMembersIsland.tsx";
-import { getProjectUserRole } from "../../../../src/utils/permissions.ts";
-import type { ProjectRole } from "../../../../src/types/roles.ts";
+import { getProjectUserRole } from "../../../../utils/permissions.ts";
+import type { ProjectRole } from "../../../../types/roles.ts";
 
 interface Project {
   id: number;

@@ -1,23 +1,22 @@
-import { Handlers, State } from "$fresh/server.ts";
+import { Handlers } from "$fresh/server.ts";
+import type { ApiState } from "./_middleware.ts";
 import {
   createUserStory,
   getUserStoriesByProjectId,
   getProjectById, // Keep for validation if needed, or remove if not used by POST/GET list
   // deleteUserStory, getUserStoryById, updateUserStory, getSprintById, getAllUserStories, getUserStoriesBySprintId
 } from "../../src/db/db.ts"; // Corrected import path
-import { hasProjectPermission, getProjectUserRole } from "../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER } from "../../src/types/roles.ts";
-import type { UserStoryStatus, UserStoryPriority } from "../../src/types/userStory.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../utils/permissions.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../../types/roles.ts";
+import type { UserStoryStatus, UserStoryPriority } from "../../types/userStory.ts";
 import { userStories } from "../../src/db/schema/index.ts"; // For type inference
 
 type NewUserStory = typeof userStories.$inferInsert;
 
-export const handler: Handlers<unknown, State> = { // Added State for ctx.state.user
+export const handler: Handlers<unknown, ApiState> = {
   async POST(req, ctx) {
-    const currentUserId = ctx.state.user?.id;
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // ctx.state.user.id is guaranteed by ApiState and middleware
+    const currentUserId = ctx.state.user.id;
 
     try {
       const body = await req.json();
@@ -81,8 +80,8 @@ export const handler: Handlers<unknown, State> = { // Added State for ctx.state.
       });
     } catch (error) {
       console.error("Error al crear historia de usuario:", error);
-      // Consider more specific error messages based on error type
-      return new Response(JSON.stringify({ error: "Error al crear la historia de usuario", details: error.message }), {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return new Response(JSON.stringify({ error: "Error al crear la historia de usuario", details: errorMessage }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -92,10 +91,8 @@ export const handler: Handlers<unknown, State> = { // Added State for ctx.state.
   // PUT and DELETE will be moved to [id].ts
   // GET /api/user-stories?projectId=<projectId>
   async GET(req, ctx) {
-    const currentUserId = ctx.state.user?.id;
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // ctx.state.user.id is guaranteed by ApiState and middleware
+    const currentUserId = ctx.state.user.id;
 
     try {
       const url = new URL(req.url);

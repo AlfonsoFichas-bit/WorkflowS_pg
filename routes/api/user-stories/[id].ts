@@ -1,29 +1,28 @@
-import { Handlers, State } from "$fresh/server.ts";
+import { Handlers } from "$fresh/server.ts";
+import type { ApiState } from "../_middleware.ts";
 import {
   getUserStoryById,
   updateUserStory,
   deleteUserStory,
 } from "../../../src/db/db.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../src/types/roles.ts";
-import type { UserStoryStatus, UserStoryPriority } from "../../../src/types/userStory.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../../utils/permissions.ts";
+import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../types/roles.ts";
+import type { UserStoryStatus, UserStoryPriority } from "../../../types/userStory.ts";
 import { userStories } from "../../../src/db/schema/index.ts";
 
 type UserStory = typeof userStories.$inferSelect;
 type UserStoryUpdate = Partial<Omit<UserStory, "id" | "createdAt" | "updatedAt" | "projectId">>; // projectId should not be changed via this endpoint
 
-export const handler: Handlers<UserStory | null, State> = {
+export const handler: Handlers<UserStory | null, ApiState> = {
   // GET /api/user-stories/:id (Get a single user story by ID)
   async GET(_req, ctx) {
     const userStoryId = parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
     if (isNaN(userStoryId)) {
       return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     try {
       const storyResult = await getUserStoryById(userStoryId);
@@ -48,14 +47,12 @@ export const handler: Handlers<UserStory | null, State> = {
   // PUT /api/user-stories/:id (Update a user story)
   async PUT(req, ctx) {
     const userStoryId = parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
     if (isNaN(userStoryId)) {
       return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     let body;
     try {
@@ -98,21 +95,20 @@ export const handler: Handlers<UserStory | null, State> = {
       return new Response(JSON.stringify(updatedStoryResult[0]), { status: 200 });
     } catch (error) {
       console.error("Error updating user story:", error);
-      return new Response(JSON.stringify({ error: "Failed to update user story", details: error.message }), { status: 500 });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return new Response(JSON.stringify({ error: "Failed to update user story", details: errorMessage }), { status: 500 });
     }
   },
 
   // DELETE /api/user-stories/:id (Delete a user story)
   async DELETE(_req, ctx) {
     const userStoryId = parseInt(ctx.params.id, 10);
-    const currentUserId = ctx.state.user?.id;
+    const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
     if (isNaN(userStoryId)) {
       return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
-    if (!currentUserId) {
-      return new Response(JSON.stringify({ error: "Authentication required" }), { status: 401 });
-    }
+    // No need to check !currentUserId
 
     try {
       const storyResult = await getUserStoryById(userStoryId);
