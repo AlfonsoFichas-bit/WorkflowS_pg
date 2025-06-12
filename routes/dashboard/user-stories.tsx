@@ -1,122 +1,90 @@
-import { DashboardLayout } from "../../components/DashboardLayout.tsx";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { Handlers, PageProps, FreshContext } from "$fresh/server.ts";
 import { State } from "./_middleware.ts";
-import { getAllUserStories, getUserStoriesByProjectId, getUserStoriesBySprintId, getProjectById, getAllProjects, getSprintsByProjectId } from "../../utils/db.ts";
+import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import UserStoriesPageIsland from "../../islands/UserStoriesPageIsland.tsx";
+import {
+  getAllProjects, // We'll filter these by user's involvement
+  getUserStoriesByProjectId,
+  // getSprintsByProjectId, // Not used in this iteration
+  // getProjectById, // Not strictly needed if getAllProjects gives enough info
+} from "../../src/db/db.ts";
+import { getProjectUserRole } from "../../utils/permissions.ts";
+import type { ProjectRole } from "../../types/roles.ts";
+import type { UserStory } from "../../src/db/schema/index.ts"; // Assuming UserStory type from schema
+import type { Project } from "../../src/db/schema/index.ts"; // Assuming Project type from schema
 
-interface UserStory {
-  id: number;
-  title: string;
-  description: string | null;
-  acceptanceCriteria: string | null;
-  projectId: number;
-  sprintId: number | null;
-  status: string;
-  priority: string;
-  storyPoints: number | null;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+// Interface for project data passed to the island, including the user's role in it
+export interface ProjectWithUserRole extends Project {
+  userRole: ProjectRole | null;
 }
 
-interface Sprint {
-  id: number;
-  name: string;
-  projectId: number;
+export interface UserStoriesPageData {
+  user: State["user"];
+  projects: ProjectWithUserRole[]; // Projects the user is part of, with their role
+  initialUserStories: UserStory[];
+  selectedProjectId: number | null;
 }
 
-interface UserStoriesData {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    formattedRole: string;
-  };
-  userStories: UserStory[];
-  projects: Array<{
-    id: number;
-    name: string;
-  }>;
-  sprints: Sprint[];
-  selectedProjectId?: number;
-  selectedSprintId?: number;
-}
-
-export const handler: Handlers<UserStoriesData, State> = {
-  async GET(req, ctx) {
-    // El middleware ya ha verificado la autenticación y ha añadido el usuario al estado
+export const handler: Handlers<UserStoriesPageData, State> = {
+  async GET(req, ctx: FreshContext<State, UserStoriesPageData>) {
+    const { state }_ = ctx; // Underscore if ctx.state.user is not directly used here, but currentUserId is
+    const currentUserId = ctx.state.user.id;
     const url = new URL(req.url);
-    const projectId = url.searchParams.get("projectId");
-    const sprintId = url.searchParams.get("sprintId");
-    
-    let userStories: UserStory[] = [];
-    let selectedProjectId: number | undefined = undefined;
-    let selectedSprintId: number | undefined = undefined;
-    let sprints: Sprint[] = [];
-    
-    // Si se especifica un sprint, obtener las historias de usuario de ese sprint
-    if (sprintId) {
-      const sprintIdNum = parseInt(sprintId);
-      if (!isNaN(sprintIdNum)) {
-        userStories = await getUserStoriesBySprintId(sprintIdNum);
-        selectedSprintId = sprintIdNum;
-        
-        // Si hay historias, obtener el projectId de la primera
-        if (userStories.length > 0) {
-          selectedProjectId = userStories[0].projectId;
-        }
+    const queryProjectId = url.searchParams.get("projectId");
+
+    let selectedProjectId: number | null = null;
+
+    const allDbProjects = await getAllProjects();
+    const projectsForUser: ProjectWithUserRole[] = [];
+
+    for (const dbProject of allDbProjects) {
+      const userRole = await getProjectUserRole(currentUserId, dbProject.id);
+      if (userRole) { // Only include projects where the user has a role
+        projectsForUser.push({
+          ...dbProject,
+          userRole,
+        });
       }
-    } 
-    // Si se especifica un proyecto, obtener las historias de usuario de ese proyecto
-    else if (projectId) {
-      const projectIdNum = parseInt(projectId);
-      if (!isNaN(projectIdNum)) {
-        // Verificar que el proyecto existe
-        const project = await getProjectById(projectIdNum);
-        if (project && project.length > 0) {
-          userStories = await getUserStoriesByProjectId(projectIdNum);
-          selectedProjectId = projectIdNum;
-          
-          // Obtener los sprints del proyecto para el selector
-          sprints = await getSprintsByProjectId(projectIdNum);
-        }
-      }
-    } else {
-      // Si no se especifica un proyecto ni un sprint, mostrar todas las historias de usuario
-      userStories = await getAllUserStories();
     }
-    
-    // Obtener todos los proyectos para el selector
-    const projects = await getAllProjects();
-    const projectsForSelect = projects.map(project => ({
-      id: project.id,
-      name: project.name
-    }));
+
+    if (queryProjectId) {
+      const parsedId = parseInt(queryProjectId, 10);
+      // Ensure the queried projectId is one the user has access to
+      if (!isNaN(parsedId) && projectsForUser.some(p => p.id === parsedId)) {
+        selectedProjectId = parsedId;
+      }
+    } else if (projectsForUser.length > 0) {
+      // Default to the first project in the user's list
+      selectedProjectId = projectsForUser[0].id;
+    }
+
+    let initialUserStories: UserStory[] = [];
+    if (selectedProjectId !== null) {
+      // At this point, selectedProjectId is confirmed to be one the user has a role in.
+      // The API for fetching user stories will also perform its own checks if called from client.
+      // Direct DB call here assumes server has necessary access rights.
+      initialUserStories = await getUserStoriesByProjectId(selectedProjectId);
+    }
 
     return ctx.render({
       user: ctx.state.user,
-      userStories,
-      projects: projectsForSelect,
-      sprints,
+      projects: projectsForUser,
+      initialUserStories,
       selectedProjectId,
-      selectedSprintId
     });
   },
 };
 
-export default function UserStories({ data }: PageProps<UserStoriesData>) {
-  const { user, userStories, projects, sprints, selectedProjectId, selectedSprintId } = data;
-  
+export default function UserStoriesPage({ data }: PageProps<UserStoriesPageData>) {
+  const { user, projects, initialUserStories, selectedProjectId } = data;
   return (
     <DashboardLayout user={user}>
       <div class="p-6">
-        <UserStoriesPageIsland 
-          user={user} 
-          userStories={userStories} 
-          projects={projects} 
-          sprints={sprints}
-          selectedProjectId={selectedProjectId} 
-          selectedSprintId={selectedSprintId}
+        <UserStoriesPageIsland
+          user={user}
+          projects={projects} // These are now projects user is part of, with roles
+          initialUserStories={initialUserStories}
+          selectedProjectId={selectedProjectId}
         />
       </div>
     </DashboardLayout>

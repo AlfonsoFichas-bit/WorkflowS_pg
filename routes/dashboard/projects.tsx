@@ -1,8 +1,10 @@
 import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import type { Handlers, PageProps } from "$fresh/server.ts";
 import type { State } from "./_middleware.ts";
-import { createProject, getAllProjects, getUserById, getProjectById, createTeamMember, getTeamsByProjectId, createTeam, getProjectMembers, deleteProject, updateUser } from "../../utils/db.ts";
+import { createProject, getAllProjects, getUserById, getProjectById, createTeamMember, getTeamsByProjectId, createTeam, getProjectMembers, deleteProject, updateUser, getAllUsers } from "../../utils/db.ts";
 import ProjectsPageIsland from "../../islands/ProjectsPageIsland.tsx";
+import { PROJECT_ROLES, ProjectRole, PROJECT_OWNER, SCRUM_MASTER } from "../../types/roles.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../utils/permissions.ts";
 
 interface Project {
   id: number;
@@ -12,6 +14,7 @@ interface Project {
   createdAt: Date | null;
   updatedAt: Date | null;
   members?: any[]; // Miembros del proyecto
+  currentUserRole?: ProjectRole | null; // Rol del usuario actual en el proyecto
 }
 
 interface ProjectsData {
@@ -28,24 +31,27 @@ interface ProjectsData {
 export const handler: Handlers<ProjectsData, State> = {
   async GET(_req, ctx) {
     // El middleware ya ha verificado la autenticación y ha añadido el usuario al estado
+    const currentUserId = ctx.state.user.id;
 
     // Obtener la lista de proyectos
     const projectsList = await getAllProjects();
 
-    // Obtener los miembros de cada proyecto
-    const projectsWithMembers = await Promise.all(
+    // Augmentar cada proyecto con los miembros y el rol del usuario actual
+    const augmentedProjects = await Promise.all(
       projectsList.map(async (project) => {
         const members = await getProjectMembers(project.id);
+        const currentUserRole = await getProjectUserRole(currentUserId, project.id);
         return {
           ...project,
           members,
+          currentUserRole, // Rol del usuario actual en este proyecto
         };
       })
     );
 
     return ctx.render({
       user: ctx.state.user,
-      projectsList: projectsWithMembers,
+      projectsList: augmentedProjects,
     });
   },
 
@@ -106,10 +112,20 @@ export const deleteProjectHandler: Handlers = {
   async DELETE(req, ctx) {
     try {
       const projectId = Number.parseInt(ctx.params.id);
+      const userId = ctx.state.user.id;
 
       if (Number.isNaN(projectId)) {
         return new Response(JSON.stringify({ error: "ID de proyecto inválido" }), {
           status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Verificar permisos
+      const canDelete = await hasProjectPermission(userId, projectId, [PROJECT_OWNER]);
+      if (!canDelete) {
+        return new Response(JSON.stringify({ error: "No tienes permiso para eliminar este proyecto" }), {
+          status: 403,
           headers: { "Content-Type": "application/json" },
         });
       }
@@ -153,7 +169,24 @@ export const addUserToProjectHandler: Handlers = {
   async POST(req, ctx) {
     try {
       const projectId = Number.parseInt(ctx.params.id);
-      const { userId, role } = await req.json();
+      const currentUserId = ctx.state.user.id;
+      const { userId, role }: { userId: number; role: ProjectRole } = await req.json();
+
+      // Verificar permisos para agregar usuarios
+      const canAddUsers = await hasProjectPermission(currentUserId, projectId, [PROJECT_OWNER, SCRUM_MASTER]);
+      if (!canAddUsers) {
+        return new Response(JSON.stringify({ error: "No tienes permiso para agregar usuarios a este proyecto" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (!PROJECT_ROLES.includes(role)) {
+        return new Response(JSON.stringify({ error: "Rol inválido" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
 
       if (Number.isNaN(projectId)) {
         return new Response(JSON.stringify({ error: "ID de proyecto inválido" }), {

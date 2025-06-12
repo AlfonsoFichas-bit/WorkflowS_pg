@@ -3,6 +3,8 @@ import { Handlers, PageProps } from "$fresh/server.ts";
 import { State } from "../../_middleware.ts";
 import { getProjectById, getProjectMembers } from "../../../../utils/db.ts";
 import ProjectMembersIsland from "../../../../islands/ProjectMembersIsland.tsx";
+import { getProjectUserRole } from "../../../../utils/permissions.ts";
+import type { ProjectRole } from "../../../../types/roles.ts";
 
 interface Project {
   id: number;
@@ -12,23 +14,25 @@ interface Project {
   createdAt: Date | null;
   updatedAt: Date | null;
   members: any[];
+  currentUserRole?: ProjectRole | null; // Added for permission checking
 }
 
 interface ProjectMembersData {
-  user: {
+  user: { // This is the logged-in user from ctx.state.user
     id: number;
     name: string;
     email: string;
-    role: string;
+    role: string; // Global role
     formattedRole: string;
   };
-  project: Project;
+  project: Project; // Project details including members and current user's role in THIS project
 }
 
 export const handler: Handlers<ProjectMembersData, State> = {
   async GET(req, ctx) {
     try {
       const projectId = Number.parseInt(ctx.params.id);
+      const currentUserId = ctx.state.user.id;
 
       if (Number.isNaN(projectId)) {
         return ctx.renderNotFound();
@@ -40,20 +44,23 @@ export const handler: Handlers<ProjectMembersData, State> = {
         return ctx.renderNotFound();
       }
 
-      const project = projectResult[0];
+      const projectBase = projectResult[0];
 
       // Obtener los miembros del proyecto
       const members = await getProjectMembers(projectId);
+      // Obtener el rol del usuario actual para este proyecto
+      const currentUserRoleForProject = await getProjectUserRole(currentUserId, projectId);
 
-      // Combinar el proyecto con sus miembros
-      const projectWithMembers = {
-        ...project,
+      // Combinar el proyecto con sus miembros y el rol del usuario actual
+      const projectWithDetails = {
+        ...projectBase,
         members,
+        currentUserRole: currentUserRoleForProject,
       };
 
       return ctx.render({
-        user: ctx.state.user,
-        project: projectWithMembers,
+        user: ctx.state.user, // Logged-in user's global details
+        project: projectWithDetails,
       });
     } catch (error) {
       console.error("Error al obtener proyecto:", error);

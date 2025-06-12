@@ -3,6 +3,7 @@ import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 import Modal from "../components/Modal.tsx";
 import CreateProjectFormIsland from "./CreateProjectFormIsland.tsx";
 import AddUserToProjectIsland from "./AddUserToProjectIsland.tsx";
+import { PROJECT_OWNER, SCRUM_MASTER, ProjectRole } from "../types/roles.ts";
 
 interface Project {
   id: number;
@@ -11,6 +12,7 @@ interface Project {
   ownerId: number;
   createdAt: Date | null;
   updatedAt: Date | null;
+  currentUserRole?: ProjectRole | null; // Added from route
   members?: {
     id: number;
     userId: number;
@@ -203,22 +205,26 @@ export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageI
                       <MaterialSymbol icon="group" className="mr-1" />
                       Ver Miembros
                     </a>
-                    <button
-                      type="button"
-                      onClick={() => openAddUserModal(project)}
-                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
-                    >
-                      <MaterialSymbol icon="person_add" className="mr-1" />
-                      Agregar Usuario
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteProject(project.id)}
-                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 flex items-center"
-                    >
-                      <MaterialSymbol icon="delete" className="mr-1" />
-                      Eliminar
-                    </button>
+                    {(project.currentUserRole === PROJECT_OWNER || project.currentUserRole === SCRUM_MASTER) && (
+                      <button
+                        type="button"
+                        onClick={() => openAddUserModal(project)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+                      >
+                        <MaterialSymbol icon="person_add" className="mr-1" />
+                        Agregar Usuario
+                      </button>
+                    )}
+                    {project.currentUserRole === PROJECT_OWNER && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProject(project.id)}
+                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 flex items-center"
+                      >
+                        <MaterialSymbol icon="delete" className="mr-1" />
+                        Eliminar
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

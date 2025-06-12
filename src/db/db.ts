@@ -26,7 +26,7 @@ import {
   rubricCriteriaRelations
 } from "./relations.ts";
 import pg from "pg";
-import { eq } from "drizzle-orm";
+import { eq, leftJoin } from "drizzle-orm"; // Added leftJoin here
 
 const { Pool } = pg;
 
@@ -339,14 +339,29 @@ export async function createUserStory(userStoryData: Omit<typeof userStories.$in
 
 export async function getUserStoryById(id: number) {
   return await db.select().from(userStories).where(eq(userStories.id, id)).limit(1);
+// Removed incorrect leftJoin import from here
 }
 
 export async function getUserStoriesByProjectId(projectId: number) {
-  return await db.select().from(userStories).where(eq(userStories.projectId, projectId));
+  return await db
+    .select({
+      ...userStories, // Select all fields from userStories
+      sprintName: sprints.name, // Select the sprint name
+    })
+    .from(userStories)
+    .leftJoin(sprints, eq(userStories.sprintId, sprints.id))
+    .where(eq(userStories.projectId, projectId));
 }
 
 export async function getUserStoriesBySprintId(sprintId: number) {
-  return await db.select().from(userStories).where(eq(userStories.sprintId, sprintId));
+  return await db
+    .select({
+      ...userStories,
+      sprintName: sprints.name,
+    })
+    .from(userStories)
+    .leftJoin(sprints, eq(userStories.sprintId, sprints.id))
+    .where(eq(userStories.sprintId, sprintId));
 }
 
 export async function getAllUserStories() {
@@ -362,6 +377,13 @@ export async function updateUserStory(id: number, userStoryData: Partial<Omit<ty
 
 export async function deleteUserStory(id: number) {
   return await db.delete(userStories).where(eq(userStories.id, id)).returning();
+}
+
+export async function assignUserStoryToSprint(userStoryId: number, sprintId: number | null) {
+  return await db.update(userStories)
+    .set({ sprintId: sprintId, updatedAt: new Date() })
+    .where(eq(userStories.id, userStoryId))
+    .returning();
 }
 
 // Servicios de rúbricas

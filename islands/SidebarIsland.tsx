@@ -16,6 +16,16 @@ const navItems = [
     iconName: "folder",
   },
   {
+    title: "User Stories",
+    href: "/dashboard/user-stories",
+    iconName: "auto_stories",
+  },
+  {
+    title: "Sprints",
+    href: "/dashboard/sprints",
+    iconName: "sprint", // Or 'track_changes', 'autorenew'
+  },
+  {
     title: "Tareas",
     href: "/dashboard/tasks",
     iconName: "task",

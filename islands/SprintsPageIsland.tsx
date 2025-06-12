@@ -1,429 +1,315 @@
-import { useState } from "preact/hooks";
-import { Button } from "../components/Button.tsx";
+import { useState, useEffect } from "preact/hooks";
+import { JSX } from "preact";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 import Modal from "../components/Modal.tsx";
-
-interface Sprint {
-  id: number;
-  name: string;
-  description: string | null;
-  projectId: number;
-  startDate: Date;
-  endDate: Date;
-  status: string;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-}
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  formattedRole: string;
-}
-
-interface Project {
-  id: number;
-  name: string;
-}
+import type { User } from "../utils/types.ts";
+import type { Sprint, UserStory } from "../src/db/schema/index.ts";
+import type { ProjectWithUserRole } from "../routes/dashboard/sprints.tsx"; // Updated path
+import { SPRINT_STATUSES, SprintStatus, PLANNED } from "../types/sprint.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../types/roles.ts";
 
 interface SprintsPageIslandProps {
   user: User;
-  sprints: Sprint[];
-  projects: Project[];
-  selectedProjectId?: number;
+  projects: ProjectWithUserRole[];
+  initialSprints: Sprint[];
+  selectedProjectId: number | null;
 }
 
-export default function SprintsPageIsland({ user, sprints, projects, selectedProjectId }: SprintsPageIslandProps) {
-  const [showCreateModal, setShowCreateModal] = useState(false);
+// Use Omit for form data to exclude fields not directly set by user or derived
+type SprintFormData = Omit<Sprint, "id" | "createdAt" | "updatedAt" | "projectId"> & { projectId?: number };
+
+
+export default function SprintsPageIsland(
+  { user, projects, initialSprints, selectedProjectId: initialSelectedProjectId }: SprintsPageIslandProps,
+) {
+  const [currentSprints, setCurrentSprints] = useState<Sprint[]>(initialSprints);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sprintsList, setSprintsList] = useState<Sprint[]>(sprints);
-  const [currentProject, setCurrentProject] = useState<number | undefined>(selectedProjectId);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(initialSelectedProjectId);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    projectId: selectedProjectId || "",
-    startDate: "",
-    endDate: "",
-    status: "planned"
-  });
+  // Create/Edit Sprint Modal
+  const [showCreateEditModal, setShowCreateEditModal] = useState(false);
+  const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
+  const [sprintFormData, setSprintFormData] = useState<Partial<SprintFormData>>({ status: PLANNED });
 
-  // Handle form input changes
-  const handleInputChange = (e: Event) => {
-    const target = e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-    const value = target.value;
-    const name = target.name;
+  // Assign User Stories Modal
+  const [showAssignStoriesModal, setShowAssignStoriesModal] = useState(false);
+  const [selectedSprintForAssignment, setSelectedSprintForAssignment] = useState<Sprint | null>(null);
+  const [availableUserStories, setAvailableUserStories] = useState<UserStory[]>([]);
+  const [assignedUserStories, setAssignedUserStories] = useState<UserStory[]>([]);
 
-    setFormData({
-      ...formData,
-      [name]: value
+  const activeProject = projects.find(p => p.id === selectedProjectId);
+  const canManageSprints = activeProject?.userRole === PROJECT_OWNER || activeProject?.userRole === SCRUM_MASTER;
+
+  useEffect(() => {
+    setCurrentSprints(initialSprints);
+    setSelectedProjectId(initialSelectedProjectId);
+  }, [initialSprints, initialSelectedProjectId]);
+
+  const fetchSprints = async (projectId: number) => {
+    setIsLoading(true); setError(null);
+    try {
+      const response = await fetch(`/api/sprints?projectId=${projectId}`);
+      if (!response.ok) throw new Error((await response.json()).error || "Failed to fetch sprints");
+      const data = await response.json();
+      setCurrentSprints(data.sprints || []);
+    } catch (e) { setError(e.message); setCurrentSprints([]); }
+    finally { setIsLoading(false); }
+  };
+
+  const handleProjectChange = (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => {
+    const newProjectIdStr = (e.target as HTMLSelectElement).value;
+    const newProjectId = newProjectIdStr ? parseInt(newProjectIdStr, 10) : null;
+    setSelectedProjectId(newProjectId);
+    history.pushState(null, "", newProjectId ? `/dashboard/sprints?projectId=${newProjectId}` : "/dashboard/sprints");
+    if (newProjectId) fetchSprints(newProjectId);
+    else setCurrentSprints([]);
+  };
+
+  const handleSprintFormInputChange = (e: JSX.TargetedEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, Event>) => {
+    const { name, value } = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+    setSprintFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const openCreateSprintModal = () => {
+    setEditingSprint(null);
+    setSprintFormData({ name: "", description: "", startDate: new Date().toISOString().split('T')[0], endDate: "", status: PLANNED });
+    setShowCreateEditModal(true);
+  };
+
+  const openEditSprintModal = (sprint: Sprint) => {
+    setEditingSprint(sprint);
+    setSprintFormData({
+      name: sprint.name,
+      description: sprint.description || "",
+      startDate: sprint.startDate ? new Date(sprint.startDate).toISOString().split('T')[0] : "",
+      endDate: sprint.endDate ? new Date(sprint.endDate).toISOString().split('T')[0] : "",
+      status: sprint.status as SprintStatus,
     });
+    setShowCreateEditModal(true);
   };
 
-  // Handle project selection change
-  const handleProjectChange = (e: Event) => {
-    const target = e.target as HTMLSelectElement;
-    const projectId = target.value ? parseInt(target.value) : undefined;
-    setCurrentProject(projectId);
-
-    // Redirect to the sprints page with the selected project
-    if (projectId) {
-      window.location.href = `/dashboard/sprints?projectId=${projectId}`;
-    } else {
-      window.location.href = "/dashboard/sprints";
-    }
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: Event) => {
+  const handleSprintFormSubmit = async (e: JSX.TargetedEvent<HTMLFormElement, Event>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+    if (!selectedProjectId && !editingSprint?.projectId) { setError("No project context for sprint."); return; }
+    setIsLoading(true); setError(null);
+
+    const dataToSend = {
+      ...sprintFormData,
+      projectId: editingSprint ? editingSprint.projectId : selectedProjectId,
+      startDate: sprintFormData.startDate ? new Date(sprintFormData.startDate) : undefined,
+      endDate: sprintFormData.endDate ? new Date(sprintFormData.endDate) : undefined,
+    };
+
+    if(dataToSend.startDate && dataToSend.endDate && dataToSend.endDate <= dataToSend.startDate){
+        setError("End date must be after start date.");
+        setIsLoading(false);
+        return;
+    }
 
     try {
-      // Validate form data
-      if (!formData.name) {
-        throw new Error("El nombre del sprint es obligatorio");
-      }
-      if (!formData.projectId) {
-        throw new Error("Debe seleccionar un proyecto");
-      }
-      if (!formData.startDate) {
-        throw new Error("La fecha de inicio es obligatoria");
-      }
-      if (!formData.endDate) {
-        throw new Error("La fecha de fin es obligatoria");
-      }
+      const response = editingSprint
+        ? await fetch(`/api/sprints/${editingSprint.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dataToSend) })
+        : await fetch(`/api/sprints`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dataToSend) });
+      if (!response.ok) throw new Error((await response.json()).error || "Failed to save sprint");
 
-      // Validate dates
-      const startDate = new Date(formData.startDate);
-      const endDate = new Date(formData.endDate);
-      if (endDate <= startDate) {
-        throw new Error("La fecha de fin debe ser posterior a la fecha de inicio");
-      }
-
-      // Create sprint
-      const response = await fetch("/api/sprints", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          description: formData.description,
-          projectId: parseInt(formData.projectId.toString()),
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          status: formData.status
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al crear el sprint");
-      }
-
-      const data = await response.json();
-
-      // Add the new sprint to the list
-      setSprintsList([...sprintsList, data.sprint]);
-
-      // Reset form and close modal
-      setFormData({
-        name: "",
-        description: "",
-        projectId: selectedProjectId || "",
-        startDate: "",
-        endDate: "",
-        status: "planned"
-      });
-      setShowCreateModal(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setIsLoading(false);
-    }
+      setShowCreateEditModal(false);
+      if (dataToSend.projectId) fetchSprints(dataToSend.projectId);
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
-  // Format date for display
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const handleDeleteSprint = async (sprint: Sprint) => {
+    if (!confirm(`Are you sure you want to delete sprint: ${sprint.name}? User stories will be moved to backlog.`)) return;
+    setIsLoading(true); setError(null);
+    try {
+      const response = await fetch(`/api/sprints/${sprint.id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error((await response.json()).error || "Failed to delete sprint");
+      fetchSprints(sprint.projectId);
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
-  // Get status badge class
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "planned":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "completed":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
-      case "cancelled":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-    }
+  const fetchProjectAndSprintStories = async (sprint: Sprint) => {
+     // Fetch stories assigned to this sprint
+      const assignedRes = await fetch(`/api/sprints/${sprint.id}/user-stories`);
+      if (!assignedRes.ok) throw new Error((await assignedRes.json()).error || "Failed to fetch assigned stories");
+      const assignedData = await assignedRes.json();
+      const currentAssignedStories = assignedData.userStories || [];
+      setAssignedUserStories(currentAssignedStories);
+
+      // Fetch all stories for the project
+      const projectStoriesRes = await fetch(`/api/user-stories?projectId=${sprint.projectId}`);
+      if(!projectStoriesRes.ok) throw new Error((await projectStoriesRes.json()).error || "Failed to fetch project stories");
+      const projectStoriesData = await projectStoriesRes.json();
+      const allProjectStories: UserStory[] = projectStoriesData.userStories || [];
+
+      const assignedIds = new Set(currentAssignedStories.map((us: UserStory) => us.id));
+      // Available stories are those in the same project, not assigned to *any* sprint (sprintId is null)
+      // OR those currently assigned to THIS sprint (so they can be unassigned)
+      setAvailableUserStories(allProjectStories.filter(us => us.sprintId === null || us.sprintId === sprint.id));
+  }
+
+  const openAssignStoriesModal = async (sprint: Sprint) => {
+    setSelectedSprintForAssignment(sprint);
+    setIsLoading(true); setError(null);
+    try {
+      await fetchProjectAndSprintStories(sprint);
+      setShowAssignStoriesModal(true);
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
-  // Get status label
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "planned":
-        return "Planificado";
-      case "active":
-        return "Activo";
-      case "completed":
-        return "Completado";
-      case "cancelled":
-        return "Cancelado";
-      default:
-        return status;
-    }
+  const handleStoryAssignmentChange = async (storyId: number, isAssigning: boolean) => {
+    if (!selectedSprintForAssignment) return;
+    setIsLoading(true); setError(null);
+    const currentSprintId = selectedSprintForAssignment.id;
+    try {
+      let response;
+      if (isAssigning) {
+        response = await fetch(`/api/sprints/${currentSprintId}/user-stories`, {
+          method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ userStoryId: storyId })
+        });
+      } else {
+         response = await fetch(`/api/sprints/${currentSprintId}/user-stories/${storyId}`, { method: "DELETE" });
+      }
+       if (!response.ok) throw new Error((await response.json()).error || `Failed to ${isAssigning ? 'assign' : 'unassign'} story`);
+
+      await fetchProjectAndSprintStories(selectedSprintForAssignment); // Refresh lists in modal
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
   return (
     <div class="space-y-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-bold">Sprints</h1>
-          <p class="text-gray-500 dark:text-gray-400">
-            Gestiona los sprints de tus proyectos
-          </p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <div class="w-full sm:w-64">
-            <select
-              class="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-              value={currentProject}
-              onChange={handleProjectChange}
-            >
-              <option value="">Todos los proyectos</option>
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            class="flex items-center justify-center gap-2"
-          >
-            <MaterialSymbol icon="add" />
-            Nuevo Sprint
-          </Button>
-        </div>
-      </div>
-
-      {/* Sprints list */}
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-        {sprintsList.length > 0 ? (
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Nombre
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Proyecto
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Fechas
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {sprintsList.map((sprint) => {
-                  const project = projects.find(p => p.id === sprint.projectId);
-                  return (
-                    <tr key={sprint.id} class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white">{sprint.name}</div>
-                        {sprint.description && (
-                          <div class="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{sprint.description}</div>
-                        )}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-white">{project?.name || `Proyecto ${sprint.projectId}`}</div>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-white">{formatDate(sprint.startDate)}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">hasta {formatDate(sprint.endDate)}</div>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(sprint.status)}`}>
-                          {getStatusLabel(sprint.status)}
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href={`/dashboard/sprints/${sprint.id}`} class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
-                          Ver
-                        </a>
-                        <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div class="p-6 text-center">
-            <p class="text-gray-500 dark:text-gray-400">
-              {currentProject 
-                ? "No hay sprints para este proyecto. Crea uno nuevo para comenzar." 
-                : "No hay sprints disponibles. Selecciona un proyecto o crea un nuevo sprint."}
-            </p>
-          </div>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">Sprints</h1>
+        {canManageSprints && selectedProjectId && (
+          <button onClick={openCreateSprintModal} class="btn-primary" disabled={isLoading}>
+            <MaterialSymbol icon="add" className="mr-1" /> Create Sprint
+          </button>
         )}
       </div>
+      <div>
+        <label htmlFor="project-select-sprint-page" class="block text-sm font-medium">Select Project:</label>
+        <select
+          id="project-select-sprint-page"
+          value={selectedProjectId || ""}
+          onChange={handleProjectChange}
+          disabled={isLoading}
+          class="mt-1 input-field w-full"
+        >
+          <option value="">-- Select a Project --</option>
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name} (Role: {p.userRole})</option>)}
+        </select>
+      </div>
 
-      {/* Create Sprint Modal */}
-      <Modal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        title="Crear Nuevo Sprint"
-      >
-        <form onSubmit={handleSubmit} class="space-y-4">
-          {error && (
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative dark:bg-red-900 dark:border-red-700 dark:text-red-300" role="alert">
-              <span class="block sm:inline">{error}</span>
+      {error && <div class="alert-danger" role="alert">{error}</div>}
+      {isLoading && <div class="text-center py-4">Loading...</div>}
+
+      {!isLoading && !error && selectedProjectId && currentSprints.length === 0 && (
+        <p class="text-center py-4">No sprints found for this project. {canManageSprints ? "Create one!" : ""}</p>
+      )}
+      {!isLoading && !error && selectedProjectId && currentSprints.length > 0 && (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {currentSprints.map(sprint => (
+            <div key={sprint.id} class="card bg-white dark:bg-gray-800 shadow-md rounded-lg p-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{sprint.name}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}
+              </p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Status: <span class={`px-2 py-0.5 text-xs rounded-full font-semibold ${sprint.status === PLANNED ? 'bg-blue-100 text-blue-700' : sprint.status === ACTIVE ? 'bg-green-100 text-green-700' : sprint.status === COMPLETED ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>{sprint.status}</span></p>
+              {/* Placeholder for story count/points - requires fetching stories per sprint or aggregating */}
+              {canManageSprints && (
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <button onClick={() => openEditSprintModal(sprint)} class="btn-secondary btn-sm" disabled={isLoading}>Edit</button>
+                  <button onClick={() => handleDeleteSprint(sprint)} class="btn-danger btn-sm" disabled={isLoading}>Delete</button>
+                  <button onClick={() => openAssignStoriesModal(sprint)} class="btn-info btn-sm" disabled={isLoading}>Manage Stories</button>
+                </div>
+              )}
             </div>
-          )}
+          ))}
+        </div>
+      )}
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Proyecto *
-            </label>
-            <select
-              name="projectId"
-              value={formData.projectId}
-              onChange={handleInputChange}
-              class="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-              required
-            >
-              <option value="">Selecciona un proyecto</option>
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nombre del Sprint *
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              class="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Descripción
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              rows={3}
-              class="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-            ></textarea>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {showCreateEditModal && (
+        <Modal show={showCreateEditModal} onClose={() => !isLoading && setShowCreateEditModal(false)} maxWidth="lg">
+          <form onSubmit={handleSprintFormSubmit} class="p-6 space-y-4">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{editingSprint ? "Edit Sprint" : "Create Sprint"}</h2>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Fecha de inicio *
-              </label>
-              <input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleInputChange}
-                class="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-                required
-              />
+              <label htmlFor="sprint-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name <span class="text-red-500">*</span></label>
+              <input type="text" name="name" id="sprint-name" value={sprintFormData.name || ""} onInput={handleSprintFormInputChange} required disabled={isLoading} class="mt-1 input-field w-full" />
             </div>
-
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Fecha de fin *
-              </label>
-              <input
-                type="date"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleInputChange}
-                class="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-                required
-              />
+              <label htmlFor="sprint-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+              <textarea name="description" id="sprint-description" value={sprintFormData.description || ""} onInput={handleSprintFormInputChange} rows={3} disabled={isLoading} class="mt-1 input-field w-full"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="sprint-startDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date <span class="text-red-500">*</span></label>
+                <input type="date" name="startDate" id="sprint-startDate" value={sprintFormData.startDate?.toString() || ""} onInput={handleSprintFormInputChange} required disabled={isLoading} class="mt-1 input-field w-full" />
+              </div>
+              <div>
+                <label htmlFor="sprint-endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date <span class="text-red-500">*</span></label>
+                <input type="date" name="endDate" id="sprint-endDate" value={sprintFormData.endDate?.toString() || ""} onInput={handleSprintFormInputChange} required disabled={isLoading} class="mt-1 input-field w-full" />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="sprint-status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status <span class="text-red-500">*</span></label>
+              <select name="status" id="sprint-status" value={sprintFormData.status || PLANNED} onChange={handleSprintFormInputChange} required disabled={isLoading} class="mt-1 input-field w-full">
+                {SPRINT_STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()}</option>)}
+              </select>
+            </div>
+            <div class="flex justify-end space-x-3 pt-4">
+              <button type="button" onClick={() => setShowCreateEditModal(false)} disabled={isLoading} class="btn-secondary">Cancel</button>
+              <button type="submit" disabled={isLoading} class="btn-primary">
+                {isLoading ? "Saving..." : (editingSprint ? "Save Changes" : "Create Sprint")}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {showAssignStoriesModal && selectedSprintForAssignment && (
+        <Modal show={showAssignStoriesModal} onClose={() => !isLoading && setShowAssignStoriesModal(false)} maxWidth="3xl">
+          <div class="p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Manage User Stories for: {selectedSprintForAssignment.name}</h2>
+            {error && <div class="alert-danger mb-4">{error}</div>}
+            {isLoading && <div class="text-center py-4">Loading stories...</div>}
+            {!isLoading &&
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 class="text-lg font-medium mb-2 text-gray-800 dark:text-gray-200">Available Stories (Backlog / Other Sprints)</h3>
+                  <ul class="h-64 overflow-y-auto border rounded p-2 dark:border-gray-600 space-y-1 bg-gray-50 dark:bg-gray-700">
+                    {availableUserStories.filter(us => us.sprintId !== selectedSprintForAssignment.id).map(us => (
+                      <li key={us.id} class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded text-sm text-gray-700 dark:text-gray-300">
+                        <span>{us.title} (SP: {us.storyPoints || 'N/A'}) {us.sprintId ? '(In another sprint)' : '(Backlog)'}</span>
+                        <button onClick={() => handleStoryAssignmentChange(us.id, true)} disabled={isLoading} class="btn-primary btn-xs">Assign <MaterialSymbol icon="arrow_forward" size="sm"/></button>
+                      </li>
+                    ))}
+                    {availableUserStories.filter(us => us.sprintId !== selectedSprintForAssignment.id).length === 0 && !isLoading && <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No available stories.</p>}
+                  </ul>
+                </div>
+                <div>
+                  <h3 class="text-lg font-medium mb-2 text-gray-800 dark:text-gray-200">Stories in this Sprint</h3>
+                  <ul class="h-64 overflow-y-auto border rounded p-2 dark:border-gray-600 space-y-1 bg-gray-50 dark:bg-gray-700">
+                    {assignedUserStories.map(us => (
+                      <li key={us.id} class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded text-sm text-gray-700 dark:text-gray-300">
+                        <button onClick={() => handleStoryAssignmentChange(us.id, false)} disabled={isLoading} class="btn-danger btn-xs"><MaterialSymbol icon="arrow_back" size="sm"/> Unassign</button>
+                        <span>{us.title} (SP: {us.storyPoints || 'N/A'})</span>
+                      </li>
+                    ))}
+                    {assignedUserStories.length === 0 && !isLoading && <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No stories assigned to this sprint.</p>}
+                  </ul>
+                </div>
+              </div>
+            }
+            <div class="flex justify-end mt-6">
+              <button type="button" onClick={() => setShowAssignStoriesModal(false)} disabled={isLoading} class="btn-secondary">Done</button>
             </div>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Estado
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-              class="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-            >
-              <option value="planned">Planificado</option>
-              <option value="active">Activo</option>
-              <option value="completed">Completado</option>
-              <option value="cancelled">Cancelado</option>
-            </select>
-          </div>
-
-          <div class="flex justify-end space-x-3 pt-4">
-            <Button
-              type="button"
-              onClick={() => setShowCreateModal(false)}
-              class="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              class={isLoading ? "opacity-70 cursor-not-allowed" : ""}
-            >
-              {isLoading ? "Creando..." : "Crear Sprint"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        </Modal>
+      )}
     </div>
   );
 }

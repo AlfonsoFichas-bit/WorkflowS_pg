@@ -1,88 +1,81 @@
-import { DashboardLayout } from "../../components/DashboardLayout.tsx";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { Handlers, PageProps, FreshContext } from "$fresh/server.ts";
 import { State } from "./_middleware.ts";
-import { getAllSprints, getSprintsByProjectId, getProjectById, getAllProjects } from "../../utils/db.ts";
+import { DashboardLayout } from "../../components/DashboardLayout.tsx";
 import SprintsPageIsland from "../../islands/SprintsPageIsland.tsx";
+import {
+  getAllProjects, // To be filtered by user's involvement
+  getSprintsByProjectId,
+} from "../../src/db/db.ts";
+import { getProjectUserRole } from "../../utils/permissions.ts";
+import type { ProjectRole } from "../../types/roles.ts";
+import type { Sprint, Project } from "../../src/db/schema/index.ts";
 
-interface Sprint {
-  id: number;
-  name: string;
-  description: string | null;
-  projectId: number;
-  startDate: Date;
-  endDate: Date;
-  status: string;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+// Interface for project data passed to the island, including the user's role in it
+export interface ProjectWithUserRole extends Project {
+  userRole: ProjectRole | null;
 }
 
-interface SprintsData {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    formattedRole: string;
-  };
-  sprints: Sprint[];
-  projects: Array<{
-    id: number;
-    name: string;
-  }>;
-  selectedProjectId?: number;
+export interface SprintsPageData {
+  user: State["user"];
+  projects: ProjectWithUserRole[]; // Projects the user is part of, with their role
+  initialSprints: Sprint[];
+  selectedProjectId: number | null;
 }
 
-export const handler: Handlers<SprintsData, State> = {
-  async GET(req, ctx) {
-    // El middleware ya ha verificado la autenticación y ha añadido el usuario al estado
+export const handler: Handlers<SprintsPageData, State> = {
+  async GET(req, ctx: FreshContext<State, SprintsPageData>) {
+    const currentUserId = ctx.state.user.id;
     const url = new URL(req.url);
-    const projectId = url.searchParams.get("projectId");
+    const queryProjectId = url.searchParams.get("projectId");
 
-    let sprints: Sprint[] = [];
-    let selectedProjectId: number | undefined = undefined;
+    let selectedProjectId: number | null = null;
 
-    if (projectId) {
-      const projectIdNum = parseInt(projectId);
-      if (!isNaN(projectIdNum)) {
-        // Verificar que el proyecto existe
-        const project = await getProjectById(projectIdNum);
-        if (project && project.length > 0) {
-          sprints = await getSprintsByProjectId(projectIdNum);
-          selectedProjectId = projectIdNum;
-        }
+    const allDbProjects = await getAllProjects();
+    const projectsForUser: ProjectWithUserRole[] = [];
+
+    for (const dbProject of allDbProjects) {
+      const userRole = await getProjectUserRole(currentUserId, dbProject.id);
+      if (userRole) { // Only include projects where the user has a role
+        projectsForUser.push({
+          ...dbProject,
+          userRole,
+        });
       }
-    } else {
-      // Si no se especifica un proyecto, mostrar todos los sprints
-      sprints = await getAllSprints();
     }
 
-    // Obtener todos los proyectos para el selector
-    const projects = await getAllProjects();
-    const projectsForSelect = projects.map(project => ({
-      id: project.id,
-      name: project.name
-    }));
+    if (queryProjectId) {
+      const parsedId = parseInt(queryProjectId, 10);
+      if (!isNaN(parsedId) && projectsForUser.some(p => p.id === parsedId)) {
+        selectedProjectId = parsedId;
+      }
+    } else if (projectsForUser.length > 0) {
+      selectedProjectId = projectsForUser[0].id;
+    }
+
+    let initialSprints: Sprint[] = [];
+    if (selectedProjectId !== null) {
+      initialSprints = await getSprintsByProjectId(selectedProjectId);
+    }
 
     return ctx.render({
       user: ctx.state.user,
-      sprints,
-      projects: projectsForSelect,
-      selectedProjectId
+      projects: projectsForUser,
+      initialSprints,
+      selectedProjectId,
     });
   },
 };
 
-export default function Sprints({ data }: PageProps<SprintsData>) {
-  const { user, sprints, projects, selectedProjectId } = data;
-
+export default function SprintsPage({ data }: PageProps<SprintsPageData>) {
+  const { user, projects, initialSprints, selectedProjectId } = data;
   return (
     <DashboardLayout user={user}>
       <div class="p-6">
-        <SprintsPageIsland 
-          user={user} 
-          sprints={sprints} 
-          projects={projects} 
-          selectedProjectId={selectedProjectId} 
+        <SprintsPageIsland
+          user={user}
+          projects={projects}
+          initialSprints={initialSprints}
+          selectedProjectId={selectedProjectId}
         />
       </div>
     </DashboardLayout>

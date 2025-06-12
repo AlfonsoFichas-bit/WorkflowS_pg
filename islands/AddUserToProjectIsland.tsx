@@ -25,8 +25,33 @@ export default function AddUserToProjectIsland({
   onCancel,
   isSubmitting = false,
 }: AddUserToProjectProps) {
+import { DEVELOPER, SCRUM_MASTER } from "../types/roles.ts";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
+interface AddUserToProjectProps {
+  projectId: number;
+  onSubmit: (userData: {
+    userId: number;
+    role: string;
+  }) => Promise<void>;
+  onCancel: () => void;
+  isSubmitting: boolean;
+}
+
+export default function AddUserToProjectIsland({
+  projectId,
+  onSubmit,
+  onCancel,
+  isSubmitting = false,
+}: AddUserToProjectProps) {
   const [userId, setUserId] = useState<number | "">("");
-  const [role, setRole] = useState("team_member");
+  const [role, setRole] = useState(DEVELOPER);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -134,9 +159,8 @@ export default function AddUserToProjectIsland({
               errors.role ? "border-red-500" : ""
             }`}
           >
-            <option value="team_member">Miembro del Equipo</option>
-            <option value="product_owner">Product Owner</option>
-            <option value="scrum_master">Scrum Master</option>
+            <option value={DEVELOPER}>Developer</option>
+            <option value={SCRUM_MASTER}>Scrum Master</option>
           </select>
           {errors.role && (
             <p className="mt-1 text-sm text-red-600">{errors.role}</p>
