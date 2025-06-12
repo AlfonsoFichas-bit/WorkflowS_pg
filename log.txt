@@ -1,0 +1,219 @@
+TS2339 [ERROR]: Property 'acceptanceCriteria' does not exist on type 'UserStoryWithSprintName'.
+      acceptanceCriteria: story.acceptanceCriteria || "",
+                                ~~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/islands/UserStoriesPageIsland.tsx:97:33
+
+TS2305 [ERROR]: Module '"file:///home/buga/WebstormProjects/WorkflowS_pg/main.ts"' has no exported member 'add'.
+import { add } from "./main.ts";
+         ~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/main_test.ts:2:10
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (!user || !user.id) {
+                         ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:43:26
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                       ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:51:40
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                                  ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:51:51
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (!user || !user.id) {
+                         ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:114:26
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                       ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:122:40
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                                  ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:122:51
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (!user || !user.id) {
+                         ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:190:26
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                       ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:198:40
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                                  ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubric-criteria.ts:198:51
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (!user || !user.id) {
+                         ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:20:26
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (user.role !== "teacher" && user.role !== "admin") {
+               ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:28:16
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (user.role !== "teacher" && user.role !== "admin") {
+                                          ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:28:43
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+        creatorId: user.id,
+                        ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:39:25
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (!user || !user.id) {
+                         ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:81:26
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                       ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:89:40
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                                  ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:89:51
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (!user || !user.id) {
+                         ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:147:26
+
+TS2339 [ERROR]: Property 'id' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                       ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:155:40
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (rubric[0].creatorId !== user.id && user.role !== "admin") {
+                                                  ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:155:51
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (!user || (user.role !== "teacher" && user.role !== "admin")) {
+                         ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:228:26
+
+TS2339 [ERROR]: Property 'role' does not exist on type '{}'.
+      if (!user || (user.role !== "teacher" && user.role !== "admin")) {
+                                                    ~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/rubrics.ts:228:53
+
+TS2724 [ERROR]: '"https://deno.land/x/fresh@1.7.3/server.ts"' has no exported member named 'State'. Did you mean 'start'?
+import { Handlers, State } from "$fresh/server.ts";
+                   ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/sprints.ts:1:20
+
+    'start' is declared here.
+    export async function start(manifest: Manifest, config: FreshConfig = {}) {
+                          ~~~~~
+        at https://deno.land/x/fresh@1.7.3/src/server/mod.ts:109:23
+
+TS18046 [ERROR]: 'error' is of type 'unknown'.
+      return new Response(JSON.stringify({ error: "Error al crear el sprint", details: error.message }), {
+                                                                                       ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/sprints.ts:71:88
+
+TS2724 [ERROR]: '"https://deno.land/x/fresh@1.7.3/server.ts"' has no exported member named 'State'. Did you mean 'start'?
+import { Handlers, State } from "$fresh/server.ts";
+                   ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/sprints/[id].ts:1:20
+
+    'start' is declared here.
+    export async function start(manifest: Manifest, config: FreshConfig = {}) {
+                          ~~~~~
+        at https://deno.land/x/fresh@1.7.3/src/server/mod.ts:109:23
+
+TS18046 [ERROR]: 'error' is of type 'unknown'.
+      return new Response(JSON.stringify({ error: "Failed to update sprint", details: error.message }), { status: 500 });
+                                                                                      ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/sprints/[id].ts:105:87
+
+TS2724 [ERROR]: '"https://deno.land/x/fresh@1.7.3/server.ts"' has no exported member named 'State'. Did you mean 'start'?
+import { Handlers, State } from "$fresh/server.ts";
+                   ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/sprints/[id]/user-stories.ts:1:20
+
+    'start' is declared here.
+    export async function start(manifest: Manifest, config: FreshConfig = {}) {
+                          ~~~~~
+        at https://deno.land/x/fresh@1.7.3/src/server/mod.ts:109:23
+
+TS18046 [ERROR]: 'error' is of type 'unknown'.
+      return new Response(JSON.stringify({ error: "Failed to assign user story to sprint", details: error.message }), { status: 500 });
+                                                                                                    ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/sprints/[id]/user-stories.ts:96:101
+
+TS18046 [ERROR]: 'error' is of type 'unknown'.
+        return new Response(JSON.stringify({ error: "Failed to remove user story from sprint", details: error.message }), { status: 500 });
+                                                                                                        ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/sprints/[id]/user-stories.ts:144:105
+
+TS2724 [ERROR]: '"https://deno.land/x/fresh@1.7.3/server.ts"' has no exported member named 'State'. Did you mean 'start'?
+import { Handlers, State } from "$fresh/server.ts";
+                   ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/user-stories.ts:1:20
+
+    'start' is declared here.
+    export async function start(manifest: Manifest, config: FreshConfig = {}) {
+                          ~~~~~
+        at https://deno.land/x/fresh@1.7.3/src/server/mod.ts:109:23
+
+TS18046 [ERROR]: 'error' is of type 'unknown'.
+      return new Response(JSON.stringify({ error: "Error al crear la historia de usuario", details: error.message }), {
+                                                                                                    ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/user-stories.ts:85:101
+
+TS2724 [ERROR]: '"https://deno.land/x/fresh@1.7.3/server.ts"' has no exported member named 'State'. Did you mean 'start'?
+import { Handlers, State } from "$fresh/server.ts";
+                   ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/user-stories/[id].ts:1:20
+
+    'start' is declared here.
+    export async function start(manifest: Manifest, config: FreshConfig = {}) {
+                          ~~~~~
+        at https://deno.land/x/fresh@1.7.3/src/server/mod.ts:109:23
+
+TS18046 [ERROR]: 'error' is of type 'unknown'.
+      return new Response(JSON.stringify({ error: "Failed to update user story", details: error.message }), { status: 500 });
+                                                                                          ~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/api/user-stories/[id].ts:101:91
+
+TS18046 [ERROR]: 'ctx.state.user' is of type 'unknown'.
+      const userId = ctx.state.user.id;
+                     ~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/projects.tsx:115:22
+
+TS18046 [ERROR]: 'ctx.state.user' is of type 'unknown'.
+      const currentUserId = ctx.state.user.id;
+                            ~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/projects.tsx:172:29
+
+TS2339 [ERROR]: Property 'renderError' does not exist on type 'FreshContext<State, ProjectMembersData, ProjectMembersData>'.
+      return ctx.renderError();
+                 ~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/projects/[id]/members.tsx:67:18
+
+TS2322 [ERROR]: Type '{ user: { id: number; name: string; email: string; role: string; formattedRole: string; }; projects: ProjectWithUserRole[]; initialUserStories: { title: string; description: string | null; ... 8 more ...; projectId: number; }[]; selectedProjectId: number | null; }' is not assignable to type 'IntrinsicAttributes & UserStoriesPageIslandProps'.
+  Property 'initialUserStories' does not exist on type 'IntrinsicAttributes & UserStoriesPageIslandProps'. Did you mean 'initialStories'?
+          initialUserStories={initialUserStories}
+          ~~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/user-stories.tsx:89:11
+
+Found 38 errors.
+
+error: Type checking failed.
