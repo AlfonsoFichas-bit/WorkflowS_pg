@@ -204,7 +204,6 @@ export default function ProjectsPageIsland({ projectsList }: ProjectsPageIslandP
                       className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center"
                     >
                       <MaterialSymbol icon="group" className="mr-1" />
-                      Ver Miembros
                     </a>
                     {(project.currentUserRole === PROJECT_OWNER || project.currentUserRole === SCRUM_MASTER) && (
                       <button
@@ -213,7 +212,6 @@ export default function ProjectsPageIsland({ projectsList }: ProjectsPageIslandP
                         className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
                       >
                         <MaterialSymbol icon="person_add" className="mr-1" />
-                        Agregar Usuario
                       </button>
                     )}
                     {project.currentUserRole === PROJECT_OWNER && (
@@ -223,7 +221,6 @@ export default function ProjectsPageIsland({ projectsList }: ProjectsPageIslandP
                         className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 flex items-center"
                       >
                         <MaterialSymbol icon="delete" className="mr-1" />
-                        Eliminar
                       </button>
                     )}
                   </div>
