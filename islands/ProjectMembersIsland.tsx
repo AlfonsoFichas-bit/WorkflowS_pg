@@ -41,7 +41,7 @@ interface ProjectMembersIslandProps {
 export default function ProjectMembersIsland({ project }: ProjectMembersIslandProps) {
   const formatRole = (role: string): string => {
     const roleMap: Record<string, string> = {
-      [PROJECT_OWNER]: "Project Owner",
+      [PROJECT_OWNER]: "Product Owner",
       [SCRUM_MASTER]: "Scrum Master",
       [DEVELOPER]: "Developer",
       "admin": "Administrador", // Keep existing global roles if needed

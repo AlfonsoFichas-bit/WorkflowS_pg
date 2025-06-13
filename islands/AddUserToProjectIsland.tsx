@@ -139,6 +139,7 @@ export default function AddUserToProjectIsland({
           >
             <option value={DEVELOPER}>Developer</option>
             <option value={SCRUM_MASTER}>Scrum Master</option>
+            <option value={PROJECT_OWNER}>Product Owner</option>
           </select>
           {errors.role && (
             <p className="mt-1 text-sm text-red-600">{errors.role}</p>
