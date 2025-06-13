@@ -6,7 +6,7 @@ import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 // Navigation items
 const navItems = [
   {
-    title: "Dashboard",
+    title: "Panel Principal",
     href: "/dashboard",
     iconName: "dashboard",
   },
@@ -16,9 +16,14 @@ const navItems = [
     iconName: "folder",
   },
   {
-    title: "User Stories",
+    title: "Historias de Usuario",
     href: "/dashboard/user-stories",
     iconName: "auto_stories",
+  },
+  {
+    title: "Tablero Kanban",
+    href: "/dashboard/kanban",
+    iconName: "view_kanban",
   },
   {
     title: "Sprints",
@@ -29,6 +34,11 @@ const navItems = [
     title: "Tareas",
     href: "/dashboard/tasks",
     iconName: "task",
+  },
+  {
+    title: "Tablero Kanban de Tareas",
+    href: "/dashboard/tasks/kanban",
+    iconName: "view_week",
   },
   {
     title: "Equipo",
@@ -72,20 +82,31 @@ export default function SidebarIsland({
     }
     return false;
   });
-  
+
+  const isMobile = useIsMobile();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   // Efecto para inicializar el estado del sidebar cuando se carga la página
   useEffect(() => {
     // Verificar el estado inicial del sidebar
     const savedState = localStorage.getItem("sidebarCollapsed");
     const isInitiallyCollapsed = savedState === "true";
-    
+
     // Aplicar la clase al body
     if (isInitiallyCollapsed) {
       document.body.classList.add("sidebar-collapsed");
     } else {
       document.body.classList.remove("sidebar-collapsed");
     }
-    
+
     // Aplicar estilos al contenido principal
     const mainElement = document.querySelector("main");
     if (mainElement) {
@@ -100,17 +121,43 @@ export default function SidebarIsland({
       }
     }
   }, []);
-  
-  const isMobile = useIsMobile();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  // Efecto para actualizar el estado de colapso en el localStorage y aplicar estilos
+  useEffect(() => {
+    // Guardar el estado de colapso en localStorage
+    localStorage.setItem("sidebarCollapsed", isCollapsed ? "true" : "false");
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+    // Actualizar la clase del body para que el contenido principal se ajuste
+    if (isCollapsed) {
+      document.body.classList.add("sidebar-collapsed");
+
+      // Aplicar estilos directamente al contenido principal
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        mainElement.classList.add("sidebar-collapsed-main");
+      }
+    } else {
+      document.body.classList.remove("sidebar-collapsed");
+
+      // Quitar estilos del contenido principal
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        mainElement.classList.remove("sidebar-collapsed-main");
+      }
+    }
+
+    // Aplicar estilos con un pequeño retraso para asegurar la transición suave
+    setTimeout(() => {
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        if (isCollapsed) {
+          mainElement.style.marginLeft = "4rem"; // 64px
+        } else {
+          mainElement.style.marginLeft = "16rem"; // 256px
+        }
+      }
+    }, 0);
+  }, [isCollapsed]);
 
   // Mobile sidebar
   if (isMobile) {
@@ -125,10 +172,19 @@ export default function SidebarIsland({
         </button>
 
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-40 bg-black bg-opacity-50" onClick={toggleMobileMenu}>
+          <div 
+            className="fixed inset-0 z-40 bg-black bg-opacity-50" 
+            onClick={toggleMobileMenu}
+            onKeyDown={(e) => e.key === 'Escape' && toggleMobileMenu()}
+            role="button"
+            tabIndex={0}
+          >
             <div
               className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg"
               onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
             >
               <div className="flex flex-col h-full">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -181,43 +237,6 @@ export default function SidebarIsland({
       </>
     );
   }
-
-  // Efecto para actualizar el estado de colapso en el localStorage y aplicar estilos
-  useEffect(() => {
-    // Guardar el estado de colapso en localStorage
-    localStorage.setItem("sidebarCollapsed", isCollapsed ? "true" : "false");
-    
-    // Actualizar la clase del body para que el contenido principal se ajuste
-    if (isCollapsed) {
-      document.body.classList.add("sidebar-collapsed");
-      
-      // Aplicar estilos directamente al contenido principal
-      const mainElement = document.querySelector("main");
-      if (mainElement) {
-        mainElement.classList.add("sidebar-collapsed-main");
-      }
-    } else {
-      document.body.classList.remove("sidebar-collapsed");
-      
-      // Quitar estilos del contenido principal
-      const mainElement = document.querySelector("main");
-      if (mainElement) {
-        mainElement.classList.remove("sidebar-collapsed-main");
-      }
-    }
-    
-    // Aplicar estilos con un pequeño retraso para asegurar la transición suave
-    setTimeout(() => {
-      const mainElement = document.querySelector("main");
-      if (mainElement) {
-        if (isCollapsed) {
-          mainElement.style.marginLeft = "4rem"; // 64px
-        } else {
-          mainElement.style.marginLeft = "16rem"; // 256px
-        }
-      }
-    }, 0);
-  }, [isCollapsed]);
 
   // Desktop sidebar
   return (

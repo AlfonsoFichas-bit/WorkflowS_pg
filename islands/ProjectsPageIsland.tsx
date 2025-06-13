@@ -177,50 +177,70 @@ export default function ProjectsPageIsland({ projectsList }: ProjectsPageIslandP
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <div key={project.id} className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div key={project.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
+              <div className="h-3 bg-blue-600"></div>
               <div className="p-6">
-                <h2 className="text-xl font-semibold mb-2">{project.name}</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                  {project.description || "Sin descripción"}
-                </p>
-
-                {/* Número de miembros del proyecto */}
-                <div className="mb-4 flex items-center">
-                  <MaterialSymbol icon="group" className="mr-2 text-gray-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {project.members && project.members.length > 0
-                      ? `${project.members.length} miembro${project.members.length !== 1 ? 's' : ''}`
-                      : "Sin miembros"}
-                  </span>
+                <div className="flex items-center mb-4">
+                  <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full mr-4">
+                    <MaterialSymbol icon="folder" className="text-blue-600 dark:text-blue-300 text-2xl" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white">{project.name}</h2>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    Creado: {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : "N/A"}
+                <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg mb-4">
+                  <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
+                    {project.description || "Sin descripción"}
+                  </p>
+                </div>
+
+                {/* Estadísticas del proyecto */}
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg flex items-center">
+                    <MaterialSymbol icon="group" className="mr-2 text-green-600 dark:text-green-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {project.members && project.members.length > 0
+                        ? `${project.members.length} miembro${project.members.length !== 1 ? 's' : ''}`
+                        : "Sin miembros"}
+                    </span>
+                  </div>
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded-lg flex items-center">
+                    <MaterialSymbol icon="calendar_today" className="mr-2 text-purple-600 dark:text-purple-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : "N/A"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Acciones
                   </span>
                   <div className="flex space-x-2">
                     <a
                       href={`/dashboard/projects/${project.id}/members`}
-                      className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center"
+                      className="p-2 bg-green-100 text-green-600 rounded-full hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 transition-colors"
+                      title="Ver miembros"
                     >
-                      <MaterialSymbol icon="group" className="mr-1" />
+                      <MaterialSymbol icon="group" />
                     </a>
                     {(project.currentUserRole === PROJECT_OWNER || project.currentUserRole === SCRUM_MASTER) && (
                       <button
                         type="button"
                         onClick={() => openAddUserModal(project)}
-                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+                        className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors"
+                        title="Agregar usuario"
                       >
-                        <MaterialSymbol icon="person_add" className="mr-1" />
+                        <MaterialSymbol icon="person_add" />
                       </button>
                     )}
                     {project.currentUserRole === PROJECT_OWNER && (
                       <button
                         type="button"
                         onClick={() => handleDeleteProject(project.id)}
-                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 flex items-center"
+                        className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition-colors"
+                        title="Eliminar proyecto"
                       >
-                        <MaterialSymbol icon="delete" className="mr-1" />
+                        <MaterialSymbol icon="delete" />
                       </button>
                     )}
                   </div>

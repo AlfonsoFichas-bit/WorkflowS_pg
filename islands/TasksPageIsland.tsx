@@ -42,12 +42,26 @@ interface Project {
   name: string;
 }
 
+interface Member {
+  id: number;
+  userId: number;
+  teamId: number;
+  role: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
 interface TasksPageIslandProps {
   user: User;
   tasks: Task[];
   sprints: Sprint[];
   userStories: UserStory[];
   projects: Project[];
+  projectMembers: Member[];
   selectedSprintId?: number;
   selectedAssigneeId?: number;
 }
@@ -58,12 +72,14 @@ export default function TasksPageIsland({
   sprints, 
   userStories, 
   projects, 
+  projectMembers,
   selectedSprintId, 
   selectedAssigneeId 
 }: TasksPageIslandProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [tasksList, setTasksList] = useState<Task[]>(tasks);
   const [currentSprint, setCurrentSprint] = useState<number | undefined>(selectedSprintId);
   const [currentAssignee, setCurrentAssignee] = useState<number | undefined>(selectedAssigneeId);
@@ -158,6 +174,7 @@ export default function TasksPageIsland({
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       // Validate form data
@@ -191,6 +208,32 @@ export default function TasksPageIsland({
       
       // Add the new task to the list
       setTasksList([...tasksList, data.task]);
+      
+      // Mostrar notificación si se asignó la tarea a alguien
+      if (formData.assigneeId) {
+        // Buscar el nombre del asignado
+        let assigneeName = "usuario";
+        
+        if (formData.assigneeId === user.id.toString()) {
+          assigneeName = "ti";
+        } else if (projectMembers && projectMembers.length > 0) {
+          const assignee = projectMembers.find(
+            member => member.user.id.toString() === formData.assigneeId
+          );
+          if (assignee) {
+            assigneeName = assignee.user.name;
+          }
+        }
+        
+        // Enviar notificación (en una implementación real, esto enviaría un correo o notificación push)
+        // Por ahora, solo mostraremos un mensaje de éxito
+        setSuccess(`Tarea "${formData.title}" creada y asignada a ${assigneeName} correctamente.`);
+        
+        // En una implementación real, aquí se enviaría la notificación al usuario asignado
+        console.log(`Notificación: Se te ha asignado la tarea "${formData.title}"`);
+      } else {
+        setSuccess(`Tarea "${formData.title}" creada correctamente.`);
+      }
       
       // Reset form and close modal
       setFormData({
@@ -286,9 +329,42 @@ export default function TasksPageIsland({
     const project = projects.find(p => p.id === sprint.projectId);
     return project ? project.name : `Proyecto ${sprint.projectId}`;
   };
+  
+  // Get assignee name by ID
+  const getAssigneeName = (assigneeId: number | null) => {
+    if (!assigneeId) return "Sin asignar";
+    
+    // Si es el usuario actual
+    if (assigneeId === user.id) {
+      return `${user.name} (Yo)`;
+    }
+    
+    // Buscar en los miembros del proyecto
+    if (projectMembers && projectMembers.length > 0) {
+      const assignee = projectMembers.find(member => member.user.id === assigneeId);
+      if (assignee) {
+        return assignee.user.name;
+      }
+    }
+    
+    return `Usuario #${assigneeId}`;
+  };
 
   return (
     <div class="space-y-6">
+      {success && (
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative dark:bg-green-900 dark:border-green-700 dark:text-green-300" role="alert">
+          <span class="block sm:inline">{success}</span>
+          <button 
+            type="button" 
+            class="absolute top-0 bottom-0 right-0 px-4 py-3"
+            onClick={() => setSuccess(null)}
+          >
+            <MaterialSymbol icon="close" />
+          </button>
+        </div>
+      )}
+      
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 class="text-2xl font-bold">Tareas</h1>
@@ -324,6 +400,14 @@ export default function TasksPageIsland({
             </select>
           </div>
           
+          <a
+            href={currentSprint ? `/dashboard/tasks/kanban?sprintId=${currentSprint}` : "/dashboard/tasks/kanban"}
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center justify-center"
+          >
+            <MaterialSymbol icon="view_kanban" class="mr-1" />
+            Vista Kanban
+          </a>
+          
           <Button
             onClick={() => setShowCreateModal(true)}
             class="flex items-center justify-center gap-2"
@@ -346,6 +430,9 @@ export default function TasksPageIsland({
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Proyecto / Sprint
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Asignado a
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Estado
@@ -373,6 +460,16 @@ export default function TasksPageIsland({
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="text-sm text-gray-900 dark:text-white">{getProjectName(task.sprintId)}</div>
                       <div class="text-sm text-gray-500 dark:text-gray-400">{getSprintName(task.sprintId)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-900 dark:text-white">
+                        {getAssigneeName(task.assigneeId)}
+                      </div>
+                      {task.assigneeId === user.id && (
+                        <div class="text-xs text-blue-500 dark:text-blue-400 mt-1">
+                          Asignada a ti
+                        </div>
+                      )}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(task.status)}`}>
@@ -503,6 +600,14 @@ export default function TasksPageIsland({
             >
               <option value="">Sin asignar</option>
               <option value={user.id}>{user.name} (Yo)</option>
+              {projectMembers && projectMembers.length > 0 && projectMembers
+                .filter(member => member.user.id !== user.id) // Filtrar al usuario actual que ya está en la lista
+                .map((member) => (
+                  <option key={member.user.id} value={member.user.id}>
+                    {member.user.name}
+                  </option>
+                ))
+              }
             </select>
           </div>
           

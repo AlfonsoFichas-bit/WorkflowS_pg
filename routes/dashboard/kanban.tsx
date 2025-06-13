@@ -1,33 +1,41 @@
 import { Handlers, PageProps, FreshContext } from "$fresh/server.ts";
 import { State } from "./_middleware.ts";
 import { DashboardLayout } from "../../components/DashboardLayout.tsx";
-import SprintsPageIsland from "../../islands/SprintsPageIsland.tsx";
+import KanbanBoardIsland from "../../islands/KanbanBoardIsland.tsx";
 import {
-  getAllProjects, // To be filtered by user's involvement
-  getSprintsByProjectId,
+  getAllProjects,
+  getUserStoriesByProjectId,
 } from "../../src/db/db.ts";
 import { getProjectUserRole } from "../../src/utils/permissions.ts";
 import type { ProjectRole } from "../../src/types/roles.ts";
-import { sprints, projects } from "../../src/db/schema/index.ts";
+import { userStories } from "../../src/db/schema/index.ts";
 
 // Define types based on the schema tables
-type Sprint = typeof sprints.$inferSelect;
-type Project = typeof projects.$inferSelect;
+type UserStory = typeof userStories.$inferSelect;
 
 // Interface for project data passed to the island, including the user's role in it
-export interface ProjectWithUserRole extends Project {
+export interface ProjectWithUserRole {
+  id: number;
+  name: string;
+  description: string | null;
+  ownerId: number;
+  createdAt: Date | null;
+  updatedAt: Date | null;
   userRole: ProjectRole | null;
 }
 
-export interface SprintsPageData {
+// Extended UserStory type that includes sprintName from API
+export type UserStoryWithSprintName = UserStory & { sprintName?: string | null };
+
+export interface KanbanBoardPageData {
   user: State["user"];
-  projects: ProjectWithUserRole[]; // Projects the user is part of, with their role
-  initialSprints: Sprint[];
+  projects: ProjectWithUserRole[];
+  initialStories: UserStoryWithSprintName[];
   selectedProjectId: number | null;
 }
 
-export const handler: Handlers<SprintsPageData, State> = {
-  async GET(req, ctx: FreshContext<State, SprintsPageData>) {
+export const handler: Handlers<KanbanBoardPageData, State> = {
+  async GET(req, ctx: FreshContext<State, KanbanBoardPageData>) {
     const currentUserId = ctx.state.user.id;
     const url = new URL(req.url);
     const queryProjectId = url.searchParams.get("projectId");
@@ -49,36 +57,38 @@ export const handler: Handlers<SprintsPageData, State> = {
 
     if (queryProjectId) {
       const parsedId = Number.parseInt(queryProjectId, 10);
+      // Ensure the queried projectId is one the user has access to
       if (!Number.isNaN(parsedId) && projectsForUser.some(p => p.id === parsedId)) {
         selectedProjectId = parsedId;
       }
     } else if (projectsForUser.length > 0) {
+      // Default to the first project in the user's list
       selectedProjectId = projectsForUser[0].id;
     }
 
-    let initialSprints: Sprint[] = [];
+    let initialUserStories: UserStoryWithSprintName[] = [];
     if (selectedProjectId !== null) {
-      initialSprints = await getSprintsByProjectId(selectedProjectId);
+      initialUserStories = await getUserStoriesByProjectId(selectedProjectId);
     }
 
     return ctx.render({
       user: ctx.state.user,
       projects: projectsForUser,
-      initialSprints,
+      initialStories: initialUserStories,
       selectedProjectId,
     });
   },
 };
 
-export default function SprintsPage({ data }: PageProps<SprintsPageData>) {
-  const { user, projects, initialSprints, selectedProjectId } = data;
+export default function KanbanBoardPage({ data }: PageProps<KanbanBoardPageData>) {
+  const { user, projects, initialStories, selectedProjectId } = data;
   return (
     <DashboardLayout user={user}>
       <div class="p-6">
-        <SprintsPageIsland
+        <KanbanBoardIsland
           user={user}
           projects={projects}
-          initialSprints={initialSprints}
+          initialStories={initialStories}
           selectedProjectId={selectedProjectId}
         />
       </div>

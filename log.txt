@@ -1,0 +1,120 @@
+TS2304 [ERROR]: Cannot find name 'selectedProjectId'.
+    if (!selectedProjectId) {
+         ~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/islands/SprintPlanningIsland.tsx:141:10
+
+TS2304 [ERROR]: Cannot find name 'selectedProjectId'.
+      ) : selectedProjectId && canManageSprints ? (
+          ~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/islands/SprintPlanningIsland.tsx:255:11
+
+TS2304 [ERROR]: Cannot find name 'selectedProjectId'.
+                  href={`/dashboard/user-stories?projectId=${selectedProjectId}`}
+                                                             ~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/islands/SprintPlanningIsland.tsx:450:62
+
+TS2304 [ERROR]: Cannot find name 'selectedProjectId'.
+      ) : selectedProjectId && !canManageSprints ? (
+          ~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/islands/SprintPlanningIsland.tsx:527:11
+
+TS2345 [ERROR]: Argument of type '{ userRole: "PROJECT_OWNER" | "SCRUM_MASTER" | "DEVELOPER"; id: number; name: string; description: string | null; ownerId: number; createdAt: Date | null; updatedAt: Date | null; }' is not assignable to parameter of type 'ProjectWithUserRole'.
+  Types of property 'createdAt' are incompatible.
+    Type 'Date | null' is not assignable to type 'Date'.
+      Type 'null' is not assignable to type 'Date'.
+        projectsForUser.push({
+                             ^
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/kanban.tsx:51:30
+
+TS2322 [ERROR]: Type '{ userRole: "PROJECT_OWNER" | "SCRUM_MASTER" | "DEVELOPER"; id: number; name: string; description: string | null; ownerId: number; createdAt: Date | null; updatedAt: Date | null; }' is not assignable to type 'ProjectWithUserRole'.
+  Types of property 'createdAt' are incompatible.
+    Type 'Date | null' is not assignable to type 'Date'.
+      Type 'null' is not assignable to type 'Date'.
+      const project: ProjectWithUserRole = {
+            ~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/projects/[id]/sprints/planning.tsx:52:13
+
+TS2724 [ERROR]: '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/schema/index.ts"' has no exported member named 'Sprint'. Did you mean 'sprints'?
+import type { Sprint, Project } from "../../src/db/schema/index.ts";
+              ~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/sprints.tsx:11:15
+
+    'sprints' is declared here.
+    export const sprints = pgTable("sprints", {
+                 ~~~~~~~
+        at file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/schema/sprints.ts:18:14
+
+TS2724 [ERROR]: '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/schema/index.ts"' has no exported member named 'Project'. Did you mean 'projects'?
+import type { Sprint, Project } from "../../src/db/schema/index.ts";
+                      ~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/sprints.tsx:11:23
+
+    'projects' is declared here.
+    export const projects = pgTable("projects", {
+                 ~~~~~~~~
+        at file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/schema/projects.ts:13:14
+
+TS2339 [ERROR]: Property 'id' does not exist on type 'ProjectWithUserRole'.
+      if (!isNaN(parsedId) && projectsForUser.some(p => p.id === parsedId)) {
+                                                          ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/sprints.tsx:48:59
+
+TS2339 [ERROR]: Property 'id' does not exist on type 'ProjectWithUserRole'.
+      selectedProjectId = projectsForUser[0].id;
+                                             ~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/sprints.tsx:52:46
+
+TS2322 [ERROR]: Type '{ user: { id: number; name: string; email: string; role: string; formattedRole: string; }; sprint: any; userStories: UserStoryWithSprintName[]; userRole: "PROJECT_OWNER" | "SCRUM_MASTER" | "DEVELOPER" | null; }' is not assignable to type 'IntrinsicAttributes & SprintDetailIslandProps'.
+  Property 'projectId' is missing in type '{ user: { id: number; name: string; email: string; role: string; formattedRole: string; }; sprint: any; userStories: UserStoryWithSprintName[]; userRole: "PROJECT_OWNER" | "SCRUM_MASTER" | "DEVELOPER" | null; }' but required in type 'SprintDetailIslandProps'.
+        <SprintDetailIsland
+         ~~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/sprints/[id].tsx:70:10
+
+    'projectId' is declared here.
+      projectId: number;
+      ~~~~~~~~~
+        at file:///home/buga/WebstormProjects/WorkflowS_pg/islands/SprintDetailIsland.tsx:14:3
+
+TS2345 [ERROR]: Argument of type '{ userRole: "PROJECT_OWNER" | "SCRUM_MASTER" | "DEVELOPER"; id: number; name: string; description: string | null; ownerId: number; createdAt: Date | null; updatedAt: Date | null; }' is not assignable to parameter of type 'ProjectWithUserRole'.
+  Types of property 'createdAt' are incompatible.
+    Type 'Date | null' is not assignable to type 'Date'.
+      Type 'null' is not assignable to type 'Date'.
+        projectsForUser.push({
+                             ^
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/sprints/planning.tsx:42:30
+
+TS2322 [ERROR]: Type '{ user: { id: number; name: string; email: string; role: string; formattedRole: string; }; projects: ProjectWithUserRole[]; selectedProjectId: number | null; }' is not assignable to type 'IntrinsicAttributes & SprintPlanningIslandProps'.
+  Property 'projects' does not exist on type 'IntrinsicAttributes & SprintPlanningIslandProps'. Did you mean 'project'?
+          projects={projects}
+          ~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/routes/dashboard/sprints/planning.tsx:75:11
+
+TS2305 [ERROR]: Module '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/db.ts"' has no exported member 'deleteDinosaurById'.
+  deleteDinosaurById,
+  ~~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/src/script.ts:2:3
+
+TS2305 [ERROR]: Module '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/db.ts"' has no exported member 'findDinosaurByName'.
+  findDinosaurByName,
+  ~~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/src/script.ts:4:3
+
+TS2305 [ERROR]: Module '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/db.ts"' has no exported member 'findDinosaurTasksByDinosaurId'.
+  findDinosaurTasksByDinosaurId,
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/src/script.ts:5:3
+
+TS2305 [ERROR]: Module '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/db.ts"' has no exported member 'insertDinosaur'.
+  insertDinosaur,
+  ~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/src/script.ts:6:3
+
+TS2305 [ERROR]: Module '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/db.ts"' has no exported member 'insertTask'.
+  insertTask,
+  ~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/src/script.ts:7:3
+
+TS2305 [ERROR]: Module '"file:///home/buga/WebstormProjects/WorkflowS_pg/src/db/db.ts"' has no exported member 'updateDinosaur'.
+  updateDinosaur,
+  ~~~~~~~~~~~~~~
+    at file:///home/buga/WebstormProjects/WorkflowS_pg/src/script.ts:8:3

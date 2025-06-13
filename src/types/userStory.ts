@@ -1,10 +1,10 @@
 // User Story Status
 export const TODO = 'TODO';
 export const IN_PROGRESS = 'IN_PROGRESS';
-export const TESTING = 'TESTING';
+export const REVIEW = 'REVIEW';
 export const DONE = 'DONE';
 
-export const USER_STORY_STATUSES = [TODO, IN_PROGRESS, TESTING, DONE] as const;
+export const USER_STORY_STATUSES = [TODO, IN_PROGRESS, REVIEW, DONE] as const;
 export type UserStoryStatus = typeof USER_STORY_STATUSES[number];
 
 // User Story Priority

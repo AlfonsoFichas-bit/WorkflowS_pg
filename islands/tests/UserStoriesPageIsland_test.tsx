@@ -1,6 +1,6 @@
 import { assertEquals, assert } from "https://deno.land/std@0.208.0/assert/mod.ts";
 import { render, fireEvent, waitFor } from "@testing-library/preact";
-import { 효과 } from "preact/hooks"; // This seems to be a typo in many examples, should be useEffect
+import { useEffect } from "preact/hooks"; // This seems to be a typo in many examples, should be useEffect
 // import UserStoriesPageIsland from "../UserStoriesPageIsland.tsx"; // Path to the island
 // import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../types/roles.ts";
 // import { User, ProjectWithUserRole } from "../../routes/dashboard/user-stories.tsx";

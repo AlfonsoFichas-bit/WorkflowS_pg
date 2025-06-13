@@ -21,14 +21,20 @@ import * as $dashboard from "./routes/dashboard.tsx";
 import * as $dashboard_middleware from "./routes/dashboard/_middleware.ts";
 import * as $dashboard_icons from "./routes/dashboard/icons.tsx";
 import * as $dashboard_index from "./routes/dashboard/index.tsx";
+import * as $dashboard_kanban from "./routes/dashboard/kanban.tsx";
 import * as $dashboard_projects from "./routes/dashboard/projects.tsx";
 import * as $dashboard_projects_id_ from "./routes/dashboard/projects/[id].tsx";
 import * as $dashboard_projects_id_members from "./routes/dashboard/projects/[id]/members.tsx";
+import * as $dashboard_projects_id_sprints_sprintId_ from "./routes/dashboard/projects/[id]/sprints/[sprintId].tsx";
+import * as $dashboard_projects_id_sprints_planning from "./routes/dashboard/projects/[id]/sprints/planning.tsx";
 import * as $dashboard_projects_id_users from "./routes/dashboard/projects/[id]/users.ts";
 import * as $dashboard_projects_available_users from "./routes/dashboard/projects/available-users.tsx";
 import * as $dashboard_rubrics from "./routes/dashboard/rubrics.tsx";
 import * as $dashboard_sprints from "./routes/dashboard/sprints.tsx";
+import * as $dashboard_sprints_id_ from "./routes/dashboard/sprints/[id].tsx";
+import * as $dashboard_sprints_planning from "./routes/dashboard/sprints/planning.tsx";
 import * as $dashboard_tasks from "./routes/dashboard/tasks.tsx";
+import * as $dashboard_tasks_kanban from "./routes/dashboard/tasks/kanban.tsx";
 import * as $dashboard_team from "./routes/dashboard/team.tsx";
 import * as $dashboard_user_stories from "./routes/dashboard/user-stories.tsx";
 import * as $dashboard_users from "./routes/dashboard/users.tsx";
@@ -36,15 +42,20 @@ import * as $dashboard_users_id_ from "./routes/dashboard/users/[id].tsx";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $AddUserToProjectIsland from "./islands/AddUserToProjectIsland.tsx";
+import * as $BurndownChartIsland from "./islands/BurndownChartIsland.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $CreateProjectFormIsland from "./islands/CreateProjectFormIsland.tsx";
 import * as $CreateUserFormIsland from "./islands/CreateUserFormIsland.tsx";
+import * as $KanbanBoardIsland from "./islands/KanbanBoardIsland.tsx";
 import * as $ModalIsland from "./islands/ModalIsland.tsx";
 import * as $ProjectMembersIsland from "./islands/ProjectMembersIsland.tsx";
 import * as $ProjectsPageIsland from "./islands/ProjectsPageIsland.tsx";
 import * as $RubricsPageIsland from "./islands/RubricsPageIsland.tsx";
 import * as $SidebarIsland from "./islands/SidebarIsland.tsx";
+import * as $SprintDetailIsland from "./islands/SprintDetailIsland.tsx";
+import * as $SprintPlanningIsland from "./islands/SprintPlanningIsland.tsx";
 import * as $SprintsPageIsland from "./islands/SprintsPageIsland.tsx";
+import * as $TaskKanbanBoardIsland from "./islands/TaskKanbanBoardIsland.tsx";
 import * as $TasksPageIsland from "./islands/TasksPageIsland.tsx";
 import * as $ThemeSwitchIsland from "./islands/ThemeSwitchIsland.tsx";
 import * as $UserStoriesPageIsland from "./islands/UserStoriesPageIsland.tsx";
@@ -72,16 +83,24 @@ const manifest = {
     "./routes/dashboard/_middleware.ts": $dashboard_middleware,
     "./routes/dashboard/icons.tsx": $dashboard_icons,
     "./routes/dashboard/index.tsx": $dashboard_index,
+    "./routes/dashboard/kanban.tsx": $dashboard_kanban,
     "./routes/dashboard/projects.tsx": $dashboard_projects,
     "./routes/dashboard/projects/[id].tsx": $dashboard_projects_id_,
     "./routes/dashboard/projects/[id]/members.tsx":
       $dashboard_projects_id_members,
+    "./routes/dashboard/projects/[id]/sprints/[sprintId].tsx":
+      $dashboard_projects_id_sprints_sprintId_,
+    "./routes/dashboard/projects/[id]/sprints/planning.tsx":
+      $dashboard_projects_id_sprints_planning,
     "./routes/dashboard/projects/[id]/users.ts": $dashboard_projects_id_users,
     "./routes/dashboard/projects/available-users.tsx":
       $dashboard_projects_available_users,
     "./routes/dashboard/rubrics.tsx": $dashboard_rubrics,
     "./routes/dashboard/sprints.tsx": $dashboard_sprints,
+    "./routes/dashboard/sprints/[id].tsx": $dashboard_sprints_id_,
+    "./routes/dashboard/sprints/planning.tsx": $dashboard_sprints_planning,
     "./routes/dashboard/tasks.tsx": $dashboard_tasks,
+    "./routes/dashboard/tasks/kanban.tsx": $dashboard_tasks_kanban,
     "./routes/dashboard/team.tsx": $dashboard_team,
     "./routes/dashboard/user-stories.tsx": $dashboard_user_stories,
     "./routes/dashboard/users.tsx": $dashboard_users,
@@ -91,15 +110,20 @@ const manifest = {
   },
   islands: {
     "./islands/AddUserToProjectIsland.tsx": $AddUserToProjectIsland,
+    "./islands/BurndownChartIsland.tsx": $BurndownChartIsland,
     "./islands/Counter.tsx": $Counter,
     "./islands/CreateProjectFormIsland.tsx": $CreateProjectFormIsland,
     "./islands/CreateUserFormIsland.tsx": $CreateUserFormIsland,
+    "./islands/KanbanBoardIsland.tsx": $KanbanBoardIsland,
     "./islands/ModalIsland.tsx": $ModalIsland,
     "./islands/ProjectMembersIsland.tsx": $ProjectMembersIsland,
     "./islands/ProjectsPageIsland.tsx": $ProjectsPageIsland,
     "./islands/RubricsPageIsland.tsx": $RubricsPageIsland,
     "./islands/SidebarIsland.tsx": $SidebarIsland,
+    "./islands/SprintDetailIsland.tsx": $SprintDetailIsland,
+    "./islands/SprintPlanningIsland.tsx": $SprintPlanningIsland,
     "./islands/SprintsPageIsland.tsx": $SprintsPageIsland,
+    "./islands/TaskKanbanBoardIsland.tsx": $TaskKanbanBoardIsland,
     "./islands/TasksPageIsland.tsx": $TasksPageIsland,
     "./islands/ThemeSwitchIsland.tsx": $ThemeSwitchIsland,
     "./islands/UserStoriesPageIsland.tsx": $UserStoriesPageIsland,

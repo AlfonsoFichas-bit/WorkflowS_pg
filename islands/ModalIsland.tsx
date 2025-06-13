@@ -53,7 +53,7 @@ export default function ModalIsland({
         }
       }
     };
-    
+
     document.addEventListener("keydown", closeOnEscape);
     return () => {
       document.removeEventListener("keydown", closeOnEscape);
@@ -92,7 +92,7 @@ export default function ModalIsland({
         {/* Contenido del modal con animación */}
         <div
           className={cn(
-            "mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto",
+            "mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto p-6",
             maxWidthClass,
             show
               ? "opacity-100 translate-y-0 sm:scale-100"
