@@ -7,8 +7,8 @@ import {
   // deleteUserStory, getUserStoryById, updateUserStory, getSprintById, getAllUserStories, getUserStoriesBySprintId
 } from "../../src/db/db.ts"; // Corrected import path
 import { hasProjectPermission, getProjectUserRole } from "../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER } from "../../types/roles.ts";
-import type { UserStoryStatus, UserStoryPriority } from "../../types/userStory.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../../src/types/roles.ts";
+import type { UserStoryStatus, UserStoryPriority } from "../../src/types/userStory.ts";
 import { userStories } from "../../src/db/schema/index.ts"; // For type inference
 
 type NewUserStory = typeof userStories.$inferInsert;

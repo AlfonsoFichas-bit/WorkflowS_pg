@@ -36,7 +36,7 @@ interface RubricsPageIslandProps {
   isTeacher: boolean;
 }
 
-export default function RubricsPageIsland({ user, rubrics, isTeacher }: RubricsPageIslandProps) {
+export default function RubricsPageIsland({ rubrics }: RubricsPageIslandProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCriteriaModal, setShowCriteriaModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,7 +105,7 @@ export default function RubricsPageIsland({ user, rubrics, isTeacher }: RubricsP
         body: JSON.stringify({
           name: formData.name,
           description: formData.description,
-          maxScore: parseInt(formData.maxScore)
+          maxScore: Number.parseInt(formData.maxScore)
         }),
       });
 
@@ -157,8 +157,8 @@ export default function RubricsPageIsland({ user, rubrics, isTeacher }: RubricsP
           rubricId: selectedRubric.id,
           name: criterionForm.name,
           description: criterionForm.description,
-          weight: parseInt(criterionForm.weight),
-          maxScore: parseInt(criterionForm.maxScore)
+          weight: Number.parseInt(criterionForm.weight),
+          maxScore: Number.parseInt(criterionForm.maxScore)
         }),
       });
 
@@ -295,13 +295,13 @@ export default function RubricsPageIsland({ user, rubrics, isTeacher }: RubricsP
                       {rubric.createdAt ? new Date(rubric.createdAt).toLocaleDateString() : ""}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
+                      <button type="button"
                         onClick={() => loadCriteria(rubric)}
                         class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4"
                       >
                         Criterios
                       </button>
-                      <button 
+                      <button type="button"
                         onClick={() => handleDeleteRubric(rubric.id)}
                         class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                       >
@@ -324,10 +324,10 @@ export default function RubricsPageIsland({ user, rubrics, isTeacher }: RubricsP
 
       {/* Create Rubric Modal */}
       <Modal
-        isOpen={showCreateModal}
+        show={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        title="Crear Nueva Rúbrica"
       >
+        <h2 class="text-xl font-semibold mb-4">Crear Nueva Rúbrica</h2>
         <form onSubmit={handleSubmit} class="space-y-4">
           {error && (
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative dark:bg-red-900 dark:border-red-700 dark:text-red-300" role="alert">
@@ -398,10 +398,10 @@ export default function RubricsPageIsland({ user, rubrics, isTeacher }: RubricsP
 
       {/* Criteria Modal */}
       <Modal
-        isOpen={showCriteriaModal}
+        show={showCriteriaModal}
         onClose={() => setShowCriteriaModal(false)}
-        title={selectedRubric ? `Criterios para: ${selectedRubric.name}` : "Criterios de Evaluación"}
       >
+        <h2 class="text-xl font-semibold mb-4">{selectedRubric ? `Criterios para: ${selectedRubric.name}` : "Criterios de Evaluación"}</h2>
         <div class="space-y-6">
           {/* Criteria list */}
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">

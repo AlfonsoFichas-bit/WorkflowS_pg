@@ -7,7 +7,7 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-import { PROJECT_ROLES } from "../../types/roles.ts";
+import { PROJECT_ROLES } from "../../../src/types/roles.ts";
 import { teams } from "./teams.ts";
 import { users } from "./users.ts";
 

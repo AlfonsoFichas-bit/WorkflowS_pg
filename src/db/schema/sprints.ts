@@ -9,7 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { projects } from "./projects.ts";
-import { SPRINT_STATUSES, PLANNED } from "../../types/sprint.ts";
+import { SPRINT_STATUSES, PLANNED } from "../../../src/types/sprint.ts";
 
 // Enum for Drizzle
 export const sprintStatusEnum = pgEnum("sprint_status", SPRINT_STATUSES);

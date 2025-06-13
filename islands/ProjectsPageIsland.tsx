@@ -3,7 +3,8 @@ import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 import Modal from "../components/Modal.tsx";
 import CreateProjectFormIsland from "./CreateProjectFormIsland.tsx";
 import AddUserToProjectIsland from "./AddUserToProjectIsland.tsx";
-import { PROJECT_OWNER, SCRUM_MASTER, ProjectRole } from "../types/roles.ts";
+import type { ProjectRole } from "../src/types/roles.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../src/types/roles.ts";
 
 interface Project {
   id: number;
@@ -40,7 +41,7 @@ interface ProjectsPageIslandProps {
   projectsList: Project[];
 }
 
-export default function ProjectsPageIsland({ user, projectsList }: ProjectsPageIslandProps) {
+export default function ProjectsPageIsland({ projectsList }: ProjectsPageIslandProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

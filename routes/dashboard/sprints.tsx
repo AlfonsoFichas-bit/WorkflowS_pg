@@ -6,8 +6,8 @@ import {
   getAllProjects, // To be filtered by user's involvement
   getSprintsByProjectId,
 } from "../../src/db/db.ts";
-import { getProjectUserRole } from "../../utils/permissions.ts";
-import type { ProjectRole } from "../../types/roles.ts";
+import { getProjectUserRole } from "../../src/utils/permissions.ts";
+import type { ProjectRole } from "../../src/types/roles.ts";
 import type { Sprint, Project } from "../../src/db/schema/index.ts";
 
 // Interface for project data passed to the island, including the user's role in it
