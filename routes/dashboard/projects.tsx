@@ -3,8 +3,8 @@ import type { Handlers, PageProps } from "$fresh/server.ts";
 import type { State } from "./_middleware.ts";
 import { createProject, getAllProjects, getUserById, getProjectById, createTeamMember, getTeamsByProjectId, createTeam, getProjectMembers, deleteProject, updateUser, getAllUsers } from "../../utils/db.ts";
 import ProjectsPageIsland from "../../islands/ProjectsPageIsland.tsx";
-import { PROJECT_ROLES, ProjectRole, PROJECT_OWNER, SCRUM_MASTER } from "../../src/types/roles.ts";
-import { hasProjectPermission, getProjectUserRole } from "../../src/utils/permissions.ts";
+import { PROJECT_ROLES, ProjectRole, PROJECT_OWNER, SCRUM_MASTER } from "../../types/roles.ts";
+import { hasProjectPermission, getProjectUserRole } from "../../utils/permissions.ts";
 
 interface Project {
   id: number;
@@ -13,18 +13,7 @@ interface Project {
   ownerId: number;
   createdAt: Date | null;
   updatedAt: Date | null;
-  members?: {
-    id: number;
-    userId: number;
-    teamId: number;
-    role: string;
-    user: {
-      id: number;
-      name: string;
-      email: string;
-      role: string;
-    };
-  }[]; // Miembros del proyecto
+  members?: any[]; // Miembros del proyecto
   currentUserRole?: ProjectRole | null; // Rol del usuario actual en el proyecto
 }
 
@@ -120,7 +109,7 @@ export const availableUsersHandler: Handlers<unknown, State> = {
 
 // Manejador para eliminar un proyecto
 export const deleteProjectHandler: Handlers<unknown, State> = {
-  async DELETE(_req, ctx) {
+  async DELETE(req, ctx) {
     try {
       const projectId = Number.parseInt(ctx.params.id);
       const userId = ctx.state.user.id; // Already correctly accessed

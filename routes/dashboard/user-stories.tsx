@@ -8,13 +8,10 @@ import {
   // getSprintsByProjectId, // Not used in this iteration
   // getProjectById, // Not strictly needed if getAllProjects gives enough info
 } from "../../src/db/db.ts";
-import { getProjectUserRole } from "../../src/utils/permissions.ts";
-import type { ProjectRole } from "../../src/types/roles.ts";
-import { userStories, projects } from "../../src/db/schema/index.ts";
-
-// Define types based on the schema tables
-type UserStory = typeof userStories.$inferSelect;
-type Project = typeof projects.$inferSelect;
+import { getProjectUserRole } from "../../utils/permissions.ts";
+import type { ProjectRole } from "../../types/roles.ts";
+import type { UserStory } from "../../src/db/schema/index.ts"; // Assuming UserStory type from schema
+import type { Project } from "../../src/db/schema/index.ts"; // Assuming Project type from schema
 
 // Interface for project data passed to the island, including the user's role in it
 export interface ProjectWithUserRole extends Project {
@@ -30,7 +27,7 @@ export interface UserStoriesPageData {
 
 export const handler: Handlers<UserStoriesPageData, State> = {
   async GET(req, ctx: FreshContext<State, UserStoriesPageData>) {
-    // Access user directly from ctx.state
+    const { state }_ = ctx; // Underscore if ctx.state.user is not directly used here, but currentUserId is
     const currentUserId = ctx.state.user.id;
     const url = new URL(req.url);
     const queryProjectId = url.searchParams.get("projectId");
@@ -51,17 +48,14 @@ export const handler: Handlers<UserStoriesPageData, State> = {
     }
 
     if (queryProjectId) {
-      const parsedId = Number.parseInt(queryProjectId, 10);
+      const parsedId = parseInt(queryProjectId, 10);
       // Ensure the queried projectId is one the user has access to
-      if (!Number.isNaN(parsedId) && projectsForUser.some(p => 'id' in p && p.id === parsedId)) {
+      if (!isNaN(parsedId) && projectsForUser.some(p => p.id === parsedId)) {
         selectedProjectId = parsedId;
       }
     } else if (projectsForUser.length > 0) {
       // Default to the first project in the user's list
-      const firstProject = projectsForUser[0];
-      if ('id' in firstProject) {
-        selectedProjectId = firstProject.id;
-      }
+      selectedProjectId = projectsForUser[0].id;
     }
 
     let initialUserStories: UserStory[] = [];

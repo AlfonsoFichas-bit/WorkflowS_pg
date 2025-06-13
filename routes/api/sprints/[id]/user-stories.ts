@@ -7,7 +7,7 @@ import {
   getUserStoryById, // To verify user story exists and belongs to the correct project
 } from "../../../../src/db/db.ts";
 import { hasProjectPermission, getProjectUserRole } from "../../../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER } from "../../../../src/types/roles.ts";
+import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../../types/roles.ts";
 import { userStories } from "../../../../src/db/schema/index.ts";
 
 type UserStory = typeof userStories.$inferSelect;
@@ -15,10 +15,10 @@ type UserStory = typeof userStories.$inferSelect;
 export const handler: Handlers<UserStory[] | UserStory | null, ApiState> = {
   // GET /api/sprints/:id/user-stories (Get all user stories for this sprint)
   async GET(_req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
+    const sprintId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
     // No need to check !currentUserId
@@ -45,10 +45,10 @@ export const handler: Handlers<UserStory[] | UserStory | null, ApiState> = {
 
   // POST /api/sprints/:id/user-stories (Assign a user story to this sprint)
   async POST(req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
+    const sprintId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
     // No need to check !currentUserId
@@ -56,12 +56,12 @@ export const handler: Handlers<UserStory[] | UserStory | null, ApiState> = {
     let body;
     try {
       body = await req.json();
-    } catch (_e) {
+    } catch (e) {
       return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 });
     }
     const { userStoryId } = body;
 
-    if (!userStoryId || Number.isNaN(Number(userStoryId))) {
+    if (!userStoryId || isNaN(Number(userStoryId))) {
       return new Response(JSON.stringify({ error: "Missing or invalid userStoryId" }), { status: 400 });
     }
 
@@ -96,17 +96,17 @@ export const handler: Handlers<UserStory[] | UserStory | null, ApiState> = {
   },
 
   // DELETE /api/sprints/:id/user-stories/:userStoryId (Remove user story from sprint)
-  async DELETE(_req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
+  async DELETE(req, ctx) {
+    const sprintId = parseInt(ctx.params.id, 10);
     // Note: Fresh's router automatically decodes URI components for params.
     const userStoryIdParam = ctx.params.userStoryId;
-    const userStoryId = Number.parseInt(userStoryIdParam, 10);
+    const userStoryId = parseInt(userStoryIdParam, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
         return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
-    if (Number.isNaN(userStoryId)) {
+    if (isNaN(userStoryId)) {
         return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
     // No need to check !currentUserId

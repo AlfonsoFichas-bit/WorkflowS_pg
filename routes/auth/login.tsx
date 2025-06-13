@@ -103,18 +103,18 @@ export default function Login({ data }: PageProps<LoginData>) {
         <title>Iniciar Sesión - WorkflowS</title>
       </Head>
       <div class="min-h-screen bg-gradient-to-b from-blue-500 to-blue-700 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8"> {/* Login Card Background */}
           <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900 mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6"> {/* Main Title */}
               Iniciar Sesión
             </h1>
             {message && (
-              <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <div class="bg-red-100 border border-red-400 text-red-700 dark:bg-red-800 dark:border-red-600 dark:text-red-200 px-4 py-3 rounded mb-4"> {/* Red banner */}
                 {message}
               </div>
             )}
             {registered && (
-              <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              <div class="bg-green-100 border border-green-400 text-green-700 dark:bg-green-800 dark:border-green-600 dark:text-green-200 px-4 py-3 rounded mb-4"> {/* Green banner */}
                 Cuenta creada exitosamente. Ahora puedes iniciar sesión.
               </div>
             )}
@@ -122,32 +122,32 @@ export default function Login({ data }: PageProps<LoginData>) {
 
           <form class="space-y-6" method="POST">
             <div>
-              <label for="email" class="block text-sm font-medium text-gray-700">
+              <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300"> {/* Email Label */}
                 Correo Electrónico
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400" /* Email Input */
               />
               {errors?.email && (
-                <p class="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p> {/* Email Error */}
               )}
             </div>
 
             <div>
-              <label for="password" class="block text-sm font-medium text-gray-700">
+              <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300"> {/* Password Label */}
                 Contraseña
               </label>
               <input
                 id="password"
                 name="password"
                 type="password"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400" /* Password Input */
               />
               {errors?.password && (
-                <p class="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p> {/* Password Error */}
               )}
             </div>
 
@@ -159,13 +159,13 @@ export default function Login({ data }: PageProps<LoginData>) {
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+                <label for="remember-me" class="ml-2 block text-sm text-gray-900 dark:text-gray-200"> {/* Recordarme Label */}
                   Recordarme
                 </label>
               </div>
 
               <div class="text-sm">
-                <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                <a href="#" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"> {/* Forgot Password Link */}
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
@@ -182,9 +182,9 @@ export default function Login({ data }: PageProps<LoginData>) {
           </form>
 
           <div class="mt-6 text-center">
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-gray-600 dark:text-gray-400"> {/* No Account Text */}
               ¿No tienes una cuenta?{" "}
-              <a href="/auth/register" class="font-medium text-blue-600 hover:text-blue-500">
+              <a href="/auth/register" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"> {/* Register Link */}
                 Registrarse
               </a>
             </p>

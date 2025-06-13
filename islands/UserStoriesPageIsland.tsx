@@ -1,12 +1,12 @@
 import { useState, useEffect } from "preact/hooks";
-import type { JSX } from "preact";
+import { JSX } from "preact";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 import Modal from "../components/Modal.tsx";
 import type { User } from "../utils/types.ts";
 import { userStories } from "../src/db/schema/index.ts"; // Import the table object
 import type { ProjectWithUserRole } from "../routes/dashboard/user-stories.tsx";
-import { USER_STORY_PRIORITIES, UserStoryPriority, USER_STORY_STATUSES, UserStoryStatus, TODO, MEDIUM } from "../src/types/userStory.ts";
-import { PROJECT_OWNER, SCRUM_MASTER } from "../src/types/roles.ts";
+import { USER_STORY_PRIORITIES, UserStoryPriority, USER_STORY_STATUSES, UserStoryStatus, TODO, MEDIUM } from "../types/userStory.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../types/roles.ts";
 
 // Define the UserStory type using Drizzle's inference
 type UserStory = typeof userStories.$inferSelect;
@@ -69,8 +69,8 @@ export default function UserStoriesPageIsland(
       }
       const data = await response.json();
       setCurrentStories(data.userStories || []);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'An unknown error occurred');
+    } catch (e) {
+      setError(e.message);
       setCurrentStories([]);
     } finally {
       setIsLoading(false);
@@ -79,7 +79,7 @@ export default function UserStoriesPageIsland(
 
   const handleProjectChange = (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => {
     const newProjectIdStr = (e.target as HTMLSelectElement).value;
-    const newProjectId = newProjectIdStr ? Number.parseInt(newProjectIdStr, 10) : null;
+    const newProjectId = newProjectIdStr ? parseInt(newProjectIdStr, 10) : null;
 
     setSelectedProjectId(newProjectId);
     setSprintFilter("all"); // Reset filter when project changes
@@ -160,8 +160,8 @@ export default function UserStoriesPageIsland(
       if (projectIdToRefresh) {
         fetchUserStories(projectIdToRefresh);
       }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'An unknown error occurred');
+    } catch (e) {
+      setError(e.message);
     } finally {
       setIsLoading(false);
     }
@@ -179,8 +179,8 @@ export default function UserStoriesPageIsland(
         throw new Error(errData.error || "Failed to delete user story");
       }
       fetchUserStories(story.projectId);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'An unknown error occurred');
+    } catch (e) {
+      setError(e.message);
     } finally {
       setIsLoading(false);
     }
@@ -188,7 +188,7 @@ export default function UserStoriesPageIsland(
 
   const handleInputChange = (e: JSX.TargetedEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, Event>) => {
     const { name, value } = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-    setFormState(prev => ({ ...prev, [name]: name === 'storyPoints' ? (value === '' ? null : Number.parseInt(value, 10)) : value }));
+    setFormState(prev => ({ ...prev, [name]: name === 'storyPoints' ? (value === '' ? null : parseInt(value, 10)) : value }));
   };
 
   const filteredStories = currentStories.filter(story => {
@@ -203,7 +203,6 @@ export default function UserStoriesPageIsland(
         <h1 class="text-2xl font-bold">User Stories</h1>
         {canManageStories && selectedProjectId && (
           <button
-            type="button"
             onClick={openCreateModal}
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
             disabled={isLoading}
@@ -286,8 +285,8 @@ export default function UserStoriesPageIsland(
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{story.storyPoints ?? "-"}</td>
                   {canManageStories && (
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button type="button" onClick={() => openEditModal(story)} disabled={isLoading} class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50">Edit</button>
-                      <button type="button" onClick={() => handleDeleteStory(story)} disabled={isLoading} class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50">Delete</button>
+                      <button onClick={() => openEditModal(story)} disabled={isLoading} class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50">Edit</button>
+                      <button onClick={() => handleDeleteStory(story)} disabled={isLoading} class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50">Delete</button>
                     </td>
                   )}
                 </tr>

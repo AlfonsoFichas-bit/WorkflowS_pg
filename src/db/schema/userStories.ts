@@ -10,7 +10,7 @@ import {
 
 import { projects } from "./projects.ts";
 import { sprints } from "./sprints.ts";
-import { USER_STORY_STATUSES, USER_STORY_PRIORITIES, TODO, MEDIUM } from "../../../src/types/userStory.ts";
+import { USER_STORY_STATUSES, USER_STORY_PRIORITIES, TODO, MEDIUM } from "../../types/userStory.ts";
 
 // Enums for Drizzle
 export const userStoryStatusEnum = pgEnum("user_story_status", USER_STORY_STATUSES);

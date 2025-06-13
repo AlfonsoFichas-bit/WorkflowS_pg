@@ -92,7 +92,7 @@ export default function ModalIsland({
         {/* Contenido del modal con animación */}
         <div
           className={cn(
-            "mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto",
+            "mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto", // Added dark:bg-gray-800
             maxWidthClass,
             show
               ? "opacity-100 translate-y-0 sm:scale-100"

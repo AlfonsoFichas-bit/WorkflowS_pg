@@ -6,8 +6,8 @@ import {
   deleteUserStory,
 } from "../../../src/db/db.ts";
 import { hasProjectPermission, getProjectUserRole } from "../../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER } from "../../../src/types/roles.ts";
-import type { UserStoryStatus, UserStoryPriority } from "../../../src/types/userStory.ts";
+import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../types/roles.ts";
+import type { UserStoryStatus, UserStoryPriority } from "../../../types/userStory.ts";
 import { userStories } from "../../../src/db/schema/index.ts";
 
 type UserStory = typeof userStories.$inferSelect;
@@ -16,10 +16,10 @@ type UserStoryUpdate = Partial<Omit<UserStory, "id" | "createdAt" | "updatedAt" 
 export const handler: Handlers<UserStory | null, ApiState> = {
   // GET /api/user-stories/:id (Get a single user story by ID)
   async GET(_req, ctx) {
-    const userStoryId = Number.parseInt(ctx.params.id, 10);
+    const userStoryId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(userStoryId)) {
+    if (isNaN(userStoryId)) {
       return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
     // No need to check !currentUserId
@@ -46,10 +46,10 @@ export const handler: Handlers<UserStory | null, ApiState> = {
 
   // PUT /api/user-stories/:id (Update a user story)
   async PUT(req, ctx) {
-    const userStoryId = Number.parseInt(ctx.params.id, 10);
+    const userStoryId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(userStoryId)) {
+    if (isNaN(userStoryId)) {
       return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
     // No need to check !currentUserId
@@ -57,7 +57,7 @@ export const handler: Handlers<UserStory | null, ApiState> = {
     let body;
     try {
       body = await req.json();
-    } catch (_e) {
+    } catch (e) {
       return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 });
     }
 
@@ -102,10 +102,10 @@ export const handler: Handlers<UserStory | null, ApiState> = {
 
   // DELETE /api/user-stories/:id (Delete a user story)
   async DELETE(_req, ctx) {
-    const userStoryId = Number.parseInt(ctx.params.id, 10);
+    const userStoryId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(userStoryId)) {
+    if (isNaN(userStoryId)) {
       return new Response(JSON.stringify({ error: "Invalid user story ID" }), { status: 400 });
     }
     // No need to check !currentUserId

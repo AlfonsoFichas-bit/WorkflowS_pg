@@ -3,8 +3,8 @@ import { Handlers, PageProps } from "$fresh/server.ts";
 import { State } from "../../_middleware.ts";
 import { getProjectById, getProjectMembers } from "../../../../utils/db.ts";
 import ProjectMembersIsland from "../../../../islands/ProjectMembersIsland.tsx";
-import { getProjectUserRole } from "../../../../src/utils/permissions.ts";
-import type { ProjectRole } from "../../../../src/types/roles.ts";
+import { getProjectUserRole } from "../../../../utils/permissions.ts";
+import type { ProjectRole } from "../../../../types/roles.ts";
 
 interface Project {
   id: number;
@@ -13,18 +13,7 @@ interface Project {
   ownerId: number;
   createdAt: Date | null;
   updatedAt: Date | null;
-  members: {
-    id: number;
-    userId: number;
-    teamId: number;
-    role: string;
-    user: {
-      id: number;
-      name: string;
-      email: string;
-      role: string;
-    };
-  }[];
+  members: any[];
   currentUserRole?: ProjectRole | null; // Added for permission checking
 }
 
@@ -40,7 +29,7 @@ interface ProjectMembersData {
 }
 
 export const handler: Handlers<ProjectMembersData, State> = {
-  async GET(_req, ctx) {
+  async GET(req, ctx) {
     try {
       const projectId = Number.parseInt(ctx.params.id);
       const currentUserId = ctx.state.user.id;
@@ -75,19 +64,7 @@ export const handler: Handlers<ProjectMembersData, State> = {
       });
     } catch (error) {
       console.error("Error al obtener proyecto:", error);
-      return ctx.render({
-        user: ctx.state.user,
-        project: {
-          id: 0,
-          name: "Error",
-          description: "Error loading project",
-          ownerId: 0,
-          createdAt: null,
-          updatedAt: null,
-          members: [],
-          currentUserRole: null
-        }
-      }, { status: 500 });
+      return ctx.renderError();
     }
   },
 };

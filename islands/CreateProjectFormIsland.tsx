@@ -59,12 +59,12 @@ export default function CreateProjectFormIsland({
             required
             value={name}
             onChange={(e) => setName((e.target as HTMLInputElement).value)}
-            className={`block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
+            className={`block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600 ${
               errors.name ? "border-red-500" : ""
             }`}
           />
           {errors.name && (
-            <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
           )}
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function CreateProjectFormIsland({
             rows={4}
             value={description}
             onChange={(e) => setDescription((e.target as HTMLTextAreaElement).value)}
-            className="block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            className="block w-full p-2.5 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
           />
         </div>
       </div>

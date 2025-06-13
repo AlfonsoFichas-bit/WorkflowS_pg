@@ -13,153 +13,28 @@ Una plataforma de gestión del flujo de trabajo para proyectos académicos utili
 ## Estructura del Proyecto
 
 ```
-├── components
-│   ├── Button.tsx
-│   ├── DashboardLayout.tsx
-│   ├── MaterialSymbol.tsx
-│   └── Modal.tsx
-├── deno.json
-├── dev.ts
-├── docs
-│   ├── Build a Database App with Drizzle ORM and Deno.md
-│   └── GuiaMaterialSymbols.md
-├── drizzle
-│   ├── 0000_amazing_xorn.sql
-│   ├── 0001_oval_oracle.sql
-│   └── meta
-│       ├── 0000_snapshot.json
-│       ├── 0001_snapshot.json
-│       └── _journal.json
-├── drizzle.config.ts
-├── fresh.config.ts
-├── fresh.gen.ts
-├── islands
-│   ├── AddUserToProjectIsland.tsx
-│   ├── Counter.tsx
-│   ├── CreateProjectFormIsland.tsx
-│   ├── CreateUserFormIsland.tsx
-│   ├── ModalIsland.tsx
-│   ├── ProjectMembersIsland.tsx
-│   ├── ProjectsPageIsland.tsx
-│   ├── RubricsPageIsland.tsx
-│   ├── SidebarIsland.tsx
-│   ├── SprintsPageIsland.tsx
-│   ├── TasksPageIsland.tsx
-│   ├── tests
-│   │   ├── SprintsPageIsland_test.tsx
-│   │   └── UserStoriesPageIsland_test.tsx
-│   ├── ThemeSwitchIsland.tsx
-│   ├── UsersPageIsland.tsx
-│   └── UserStoriesPageIsland.tsx
-├── main_test.ts
-├── main.ts
-├── README.md
-├── routes
-│   ├── _404.tsx
-│   ├── api
-│   │   ├── joke.ts
-│   │   ├── _middleware.ts
-│   │   ├── rubric-criteria.ts
-│   │   ├── rubrics.ts
-│   │   ├── sprints
-│   │   │   ├── [id]
-│   │   │   │   └── user-stories.ts
-│   │   │   └── [id].ts
-│   │   ├── sprints.ts
-│   │   ├── tasks.ts
-│   │   ├── user-stories
-│   │   │   └── [id].ts
-│   │   └── user-stories.ts
-│   ├── _app.tsx
-│   ├── auth
-│   │   ├── login.tsx
-│   │   ├── logout.ts
-│   │   └── register.tsx
-│   ├── dashboard
-│   │   ├── icons.tsx
-│   │   ├── index.tsx
-│   │   ├── _middleware.ts
-│   │   ├── projects
-│   │   │   ├── available-users.tsx
-│   │   │   ├── [id]
-│   │   │   │   ├── members.tsx
-│   │   │   │   └── users.ts
-│   │   │   └── [id].tsx
-│   │   ├── projects.tsx
-│   │   ├── rubrics.tsx
-│   │   ├── sprints.tsx
-│   │   ├── tasks.tsx
-│   │   ├── team.tsx
-│   │   ├── users
-│   │   │   └── [id].tsx
-│   │   ├── user-stories.tsx
-│   │   └── users.tsx
-│   ├── dashboard.tsx
-│   ├── greet
-│   │   └── [name].tsx
-│   └── index.tsx
-├── src
-│   ├── config
-│   │   └── database.ts
-│   ├── db
-│   │   ├── db.ts
-│   │   ├── drop-tables.ts
-│   │   ├── index.ts
-│   │   ├── init.ts
-│   │   ├── migrate.ts
-│   │   ├── relations.ts
-│   │   ├── schema
-│   │   │   ├── comments.ts
-│   │   │   ├── evaluations.ts
-│   │   │   ├── index.ts
-│   │   │   ├── projects.ts
-│   │   │   ├── rubrics.ts
-│   │   │   ├── sprints.ts
-│   │   │   ├── tasks.ts
-│   │   │   ├── teamMembers.ts
-│   │   │   ├── teams.ts
-│   │   │   ├── userStories.ts
-│   │   │   └── users.ts
-│   │   └── schema.ts.bak
-│   ├── middleware
-│   │   └── README.md
-│   ├── models
-│   │   └── README.md
-│   ├── scripts
-│   │   ├── init-admin.ts
-│   │   ├── setup-db.ts
-│   │   └── setup.ts
-│   ├── script.ts
-│   ├── services
-│   │   └── README.md
-│   ├── test-connection.ts
-│   ├── types
-│   │   ├── index.ts
-│   │   ├── roles.d.ts
-│   │   ├── roles.ts
-│   │   ├── sprint.ts
-│   │   └── userStory.ts
-│   └── utils
-│       ├── env.ts
-│       └── permissions.ts
-├── static
-│   ├── favicon.ico
-│   ├── logo.svg
-│   ├── styles.css
-│   └── theme.js
-├── tailwind.config.ts
-├── tests
-│   └── api
-│       ├── sprints_api_test.ts
-│       └── user_stories_api_test.ts
-└── utils
-    ├── auth.ts
-    ├── db.ts
-    ├── hooks.ts
-    ├── theme-types.ts
-    └── types.ts
-
-31 directories, 115 files
+WorkflowS_pg/
+├── components/       # Componentes reutilizables de la interfaz
+├── islands/          # Componentes interactivos (lado del cliente)
+├── routes/           # Rutas de la aplicación y puntos finales de la API
+│   ├── api/          # Puntos finales de la API
+│   └── ...           # Rutas de las páginas
+├── src/              # Código fuente de la aplicación
+│   ├── config/       # Archivos de configuración
+│   ├── db/           # Código relacionado con la base de datos
+│   │   ├── migrations/  # Migraciones de la base de datos
+│   │   └── schema/   # Definiciones del esquema de la base de datos
+│   ├── middleware/   # Funciones middleware
+│   ├── models/       # Modelos de lógica de negocio
+│   ├── services/     # Capa de servicio
+│   ├── types/        # Definiciones de tipos de TypeScript
+│   └── utils/        # Funciones utilitarias
+├── static/           # Recursos estáticos
+├── .env.example      # Ejemplo de variables de entorno
+├── deno.json         # Configuración de Deno
+├── drizzle.config.ts # Configuración de Drizzle ORM
+├── fresh.config.ts   # Configuración del framework Fresh
+└── tailwind.config.ts # Configuración de Tailwind CSS
 ```
 
 ## Primeros Pasos
@@ -182,7 +57,7 @@ Una plataforma de gestión del flujo de trabajo para proyectos académicos utili
    ```
    deno task start
    ```
-   
+
    **Nota**: Al iniciar el servidor con `deno task start`, automáticamente se realizarán las siguientes acciones:
    1. Se configurará la base de datos desde cero (eliminando tablas existentes si las hay)
    2. Se crearán todas las tablas con la estructura correcta
@@ -195,7 +70,7 @@ Una plataforma de gestión del flujo de trabajo para proyectos académicos utili
    ```
    deno task setup:db
    ```
-   
+
    **Importante**: La primera vez que ejecutes `deno task start` o `deno task setup:db`, se eliminará cualquier dato existente en la base de datos y se creará una estructura limpia. Esto garantiza que la aplicación funcione correctamente desde el principio.
 
 Esto vigilará el directorio del proyecto y se reiniciará según sea necesario.
@@ -211,3 +86,107 @@ El proyecto utiliza PostgreSQL con Drizzle ORM. Se agregarán instrucciones de c
 - Gestión de tareas con tableros Kanban
 - Métricas e informes para profesores
 - Control de acceso basado en roles
+
+## Estructura del proyecto (Actualizado)
+
+```
+├── biome.json
+├── components
+│   ├── Button.tsx
+│   ├── DashboardLayout.tsx
+│   ├── MaterialSymbol.tsx
+│   └── Modal.tsx
+├── deno.json
+├── dev.ts
+├── docs
+│   ├── Build a Database App with Drizzle ORM and Deno.md
+│   └── GuiaMaterialSymbols.md
+├── drizzle
+│   ├── 0000_amazing_xorn.sql
+│   ├── 0001_oval_oracle.sql
+│   └── meta
+│       ├── 0000_snapshot.json
+│       ├── 0001_snapshot.json
+│       └── _journal.json
+├── drizzle.config.ts
+├── fresh.config.ts
+├── fresh.gen.ts
+├── islands
+│   ├── Counter.tsx
+│   ├── CreateUserFormIsland.tsx
+│   ├── ModalIsland.tsx
+│   ├── SidebarIsland.tsx
+│   ├── ThemeSwitchIsland.tsx
+│   └── UsersPageIsland.tsx
+├── main_test.ts
+├── main.ts
+├── README.md
+├── routes
+│   ├── _404.tsx
+│   ├── api
+│   │   └── joke.ts
+│   ├── _app.tsx
+│   ├── auth
+│   │   ├── login.tsx
+│   │   ├── logout.ts
+│   │   └── register.tsx
+│   ├── dashboard
+│   │   ├── icons.tsx
+│   │   ├── index.tsx
+│   │   ├── _middleware.ts
+│   │   ├── projects.tsx
+│   │   ├── tasks.tsx
+│   │   ├── team.tsx
+│   │   ├── users
+│   │   │   └── [id].tsx
+│   │   └── users.tsx
+│   ├── dashboard.tsx
+│   ├── greet
+│   │   └── [name].tsx
+│   └── index.tsx
+├── src
+│   ├── config
+│   │   └── database.ts
+│   ├── db
+│   │   ├── db.ts
+│   │   ├── drop-tables.ts
+│   │   ├── index.ts
+│   │   ├── init.ts
+│   │   ├── migrate.ts
+│   │   ├── relations.ts
+│   │   ├── schema
+│   │   │   ├── comments.ts
+│   │   │   ├── evaluations.ts
+│   │   │   ├── index.ts
+│   │   │   ├── projects.ts
+│   │   │   ├── sprints.ts
+│   │   │   ├── tasks.ts
+│   │   │   ├── teamMembers.ts
+│   │   │   ├── teams.ts
+│   │   │   └── users.ts
+│   │   └── schema.ts.bak
+│   ├── middleware
+│   │   └── README.md
+│   ├── models
+│   │   └── README.md
+│   ├── script.ts
+│   ├── services
+│   │   └── README.md
+│   ├── types
+│   │   └── index.ts
+│   └── utils
+│       └── env.ts
+├── static
+│   ├── favicon.ico
+│   ├── logo.svg
+│   ├── styles.css
+│   └── theme.js
+├── tailwind.config.ts
+└── utils
+    ├── auth.ts
+    ├── db.ts
+    ├── hooks.ts
+    └── theme-types.ts
+
+22 directories, 75 files
+```

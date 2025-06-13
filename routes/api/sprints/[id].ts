@@ -7,8 +7,8 @@ import {
   assignUserStoryToSprint, // For disassociating user stories on delete
 } from "../../../src/db/db.ts";
 import { hasProjectPermission, getProjectUserRole } from "../../../src/utils/permissions.ts";
-import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../src/types/roles.ts";
-import { SprintStatus } from "../../../src/types/sprint.ts";
+import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../../../types/roles.ts";
+import { SprintStatus } from "../../../types/sprint.ts";
 import { sprints, userStories } from "../../../src/db/schema/index.ts"; // For type inference
 
 type Sprint = typeof sprints.$inferSelect;
@@ -17,10 +17,10 @@ type SprintUpdate = Partial<Omit<Sprint, "id" | "createdAt" | "updatedAt" | "pro
 export const handler: Handlers<Sprint | null, ApiState> = {
   // GET /api/sprints/:id
   async GET(_req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
+    const sprintId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
     // No need to check !currentUserId as middleware handles it
@@ -46,10 +46,10 @@ export const handler: Handlers<Sprint | null, ApiState> = {
 
   // PUT /api/sprints/:id
   async PUT(req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
+    const sprintId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
     // No need to check !currentUserId
@@ -106,10 +106,10 @@ export const handler: Handlers<Sprint | null, ApiState> = {
 
   // DELETE /api/sprints/:id
   async DELETE(_req, ctx) {
-    const sprintId = Number.parseInt(ctx.params.id, 10);
+    const sprintId = parseInt(ctx.params.id, 10);
     const currentUserId = ctx.state.user.id; // Guaranteed by ApiState
 
-    if (Number.isNaN(sprintId)) {
+    if (isNaN(sprintId)) {
       return new Response(JSON.stringify({ error: "Invalid sprint ID" }), { status: 400 });
     }
     // No need to check !currentUserId

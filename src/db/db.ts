@@ -26,7 +26,7 @@ import {
   rubricCriteriaRelations
 } from "./relations.ts";
 import pg from "pg";
-import { eq } from "drizzle-orm"; // Removed leftJoin as it's not needed
+import { eq, leftJoin } from "drizzle-orm"; // Added leftJoin here
 
 const { Pool } = pg;
 
@@ -343,33 +343,25 @@ export async function getUserStoryById(id: number) {
 }
 
 export async function getUserStoriesByProjectId(projectId: number) {
-  // Modificamos para usar la sintaxis correcta de Drizzle
-  const results = await db
-    .select()
+  return await db
+    .select({
+      ...userStories, // Select all fields from userStories
+      sprintName: sprints.name, // Select the sprint name
+    })
     .from(userStories)
     .leftJoin(sprints, eq(userStories.sprintId, sprints.id))
     .where(eq(userStories.projectId, projectId));
-    
-  // Transformamos los resultados para incluir el nombre del sprint
-  return results.map(row => ({
-    ...row.user_stories,
-    sprintName: row.sprints?.name || null
-  }));
 }
 
 export async function getUserStoriesBySprintId(sprintId: number) {
-  // Modificamos para usar la sintaxis correcta de Drizzle
-  const results = await db
-    .select()
+  return await db
+    .select({
+      ...userStories,
+      sprintName: sprints.name,
+    })
     .from(userStories)
     .leftJoin(sprints, eq(userStories.sprintId, sprints.id))
     .where(eq(userStories.sprintId, sprintId));
-    
-  // Transformamos los resultados para incluir el nombre del sprint
-  return results.map(row => ({
-    ...row.user_stories,
-    sprintName: row.sprints?.name || null
-  }));
 }
 
 export async function getAllUserStories() {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "preact/hooks";
 import type { JSX } from "preact";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
-import { PROJECT_OWNER, SCRUM_MASTER, DEVELOPER } from "../src/types/roles.ts";
 
 // First block of interfaces and incomplete function definition removed.
 

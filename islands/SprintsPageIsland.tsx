@@ -1,17 +1,12 @@
 import { useState, useEffect } from "preact/hooks";
-import type { JSX } from "preact";
+import { JSX } from "preact";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
 import Modal from "../components/Modal.tsx";
 import type { User } from "../utils/types.ts";
-import { sprints } from "../src/db/schema/sprints.ts";
-import { userStories } from "../src/db/schema/userStories.ts";
+import type { Sprint, UserStory } from "../src/db/schema/index.ts";
 import type { ProjectWithUserRole } from "../routes/dashboard/sprints.tsx"; // Updated path
-import { SPRINT_STATUSES, SprintStatus, PLANNED, ACTIVE, COMPLETED } from "../src/types/sprint.ts";
-import { PROJECT_OWNER, SCRUM_MASTER } from "../src/types/roles.ts";
-
-// Define types based on the schema tables
-type Sprint = typeof sprints.$inferSelect;
-type UserStory = typeof userStories.$inferSelect;
+import { SPRINT_STATUSES, SprintStatus, PLANNED } from "../types/sprint.ts";
+import { PROJECT_OWNER, SCRUM_MASTER } from "../types/roles.ts";
 
 interface SprintsPageIslandProps {
   user: User;
@@ -21,16 +16,11 @@ interface SprintsPageIslandProps {
 }
 
 // Use Omit for form data to exclude fields not directly set by user or derived
-// Also modify date fields to accept string values for form inputs
-type SprintFormData = Omit<Sprint, "id" | "createdAt" | "updatedAt" | "projectId" | "startDate" | "endDate"> & { 
-  projectId?: number;
-  startDate?: string;
-  endDate?: string;
-};
+type SprintFormData = Omit<Sprint, "id" | "createdAt" | "updatedAt" | "projectId"> & { projectId?: number };
 
 
 export default function SprintsPageIsland(
-  { projects, initialSprints, selectedProjectId: initialSelectedProjectId }: SprintsPageIslandProps,
+  { user, projects, initialSprints, selectedProjectId: initialSelectedProjectId }: SprintsPageIslandProps,
 ) {
   const [currentSprints, setCurrentSprints] = useState<Sprint[]>(initialSprints);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +38,7 @@ export default function SprintsPageIsland(
   const [availableUserStories, setAvailableUserStories] = useState<UserStory[]>([]);
   const [assignedUserStories, setAssignedUserStories] = useState<UserStory[]>([]);
 
-  const activeProject = projects.find(p => 'id' in p && p.id === selectedProjectId);
+  const activeProject = projects.find(p => p.id === selectedProjectId);
   const canManageSprints = activeProject?.userRole === PROJECT_OWNER || activeProject?.userRole === SCRUM_MASTER;
 
   useEffect(() => {
@@ -63,15 +53,13 @@ export default function SprintsPageIsland(
       if (!response.ok) throw new Error((await response.json()).error || "Failed to fetch sprints");
       const data = await response.json();
       setCurrentSprints(data.sprints || []);
-    } catch (e: unknown) { 
-      setError(e instanceof Error ? e.message : 'An unknown error occurred'); 
-      setCurrentSprints([]); 
-    } finally { setIsLoading(false); }
+    } catch (e) { setError(e.message); setCurrentSprints([]); }
+    finally { setIsLoading(false); }
   };
 
   const handleProjectChange = (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => {
     const newProjectIdStr = (e.target as HTMLSelectElement).value;
-    const newProjectId = newProjectIdStr ? Number.parseInt(newProjectIdStr, 10) : null;
+    const newProjectId = newProjectIdStr ? parseInt(newProjectIdStr, 10) : null;
     setSelectedProjectId(newProjectId);
     history.pushState(null, "", newProjectId ? `/dashboard/sprints?projectId=${newProjectId}` : "/dashboard/sprints");
     if (newProjectId) fetchSprints(newProjectId);
@@ -127,9 +115,8 @@ export default function SprintsPageIsland(
 
       setShowCreateEditModal(false);
       if (dataToSend.projectId) fetchSprints(dataToSend.projectId);
-    } catch (e: unknown) { 
-      setError(e instanceof Error ? e.message : 'An unknown error occurred'); 
-    } finally { setIsLoading(false); }
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
   const handleDeleteSprint = async (sprint: Sprint) => {
@@ -139,9 +126,8 @@ export default function SprintsPageIsland(
       const response = await fetch(`/api/sprints/${sprint.id}`, { method: "DELETE" });
       if (!response.ok) throw new Error((await response.json()).error || "Failed to delete sprint");
       fetchSprints(sprint.projectId);
-    } catch (e: unknown) { 
-      setError(e instanceof Error ? e.message : 'An unknown error occurred'); 
-    } finally { setIsLoading(false); }
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
   const fetchProjectAndSprintStories = async (sprint: Sprint) => {
@@ -158,6 +144,7 @@ export default function SprintsPageIsland(
       const projectStoriesData = await projectStoriesRes.json();
       const allProjectStories: UserStory[] = projectStoriesData.userStories || [];
 
+      const assignedIds = new Set(currentAssignedStories.map((us: UserStory) => us.id));
       // Available stories are those in the same project, not assigned to *any* sprint (sprintId is null)
       // OR those currently assigned to THIS sprint (so they can be unassigned)
       setAvailableUserStories(allProjectStories.filter(us => us.sprintId === null || us.sprintId === sprint.id));
@@ -169,9 +156,8 @@ export default function SprintsPageIsland(
     try {
       await fetchProjectAndSprintStories(sprint);
       setShowAssignStoriesModal(true);
-    } catch (e: unknown) { 
-      setError(e instanceof Error ? e.message : 'An unknown error occurred'); 
-    } finally { setIsLoading(false); }
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
   const handleStoryAssignmentChange = async (storyId: number, isAssigning: boolean) => {
@@ -190,9 +176,8 @@ export default function SprintsPageIsland(
        if (!response.ok) throw new Error((await response.json()).error || `Failed to ${isAssigning ? 'assign' : 'unassign'} story`);
 
       await fetchProjectAndSprintStories(selectedSprintForAssignment); // Refresh lists in modal
-    } catch (e: unknown) { 
-      setError(e instanceof Error ? e.message : 'An unknown error occurred'); 
-    } finally { setIsLoading(false); }
+    } catch (e) { setError(e.message); }
+    finally { setIsLoading(false); }
   };
 
   return (
@@ -200,7 +185,7 @@ export default function SprintsPageIsland(
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">Sprints</h1>
         {canManageSprints && selectedProjectId && (
-          <button type="button" onClick={openCreateSprintModal} class="btn-primary" disabled={isLoading}>
+          <button onClick={openCreateSprintModal} class="btn-primary" disabled={isLoading}>
             <MaterialSymbol icon="add" className="mr-1" /> Create Sprint
           </button>
         )}
@@ -215,13 +200,7 @@ export default function SprintsPageIsland(
           class="mt-1 input-field w-full"
         >
           <option value="">-- Select a Project --</option>
-          {projects.map((p) => {
-            // Ensure p has id and name properties
-            if (p && typeof p === 'object' && 'id' in p && 'name' in p) {
-              return <option key={String(p.id)} value={String(p.id)}>{String(p.name)} (Role: {String(p.userRole)})</option>;
-            }
-            return null;
-          })}
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name} (Role: {p.userRole})</option>)}
         </select>
       </div>
 
@@ -243,9 +222,9 @@ export default function SprintsPageIsland(
               {/* Placeholder for story count/points - requires fetching stories per sprint or aggregating */}
               {canManageSprints && (
                 <div class="mt-4 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => openEditSprintModal(sprint)} class="btn-secondary btn-sm" disabled={isLoading}>Edit</button>
-                  <button type="button" onClick={() => handleDeleteSprint(sprint)} class="btn-danger btn-sm" disabled={isLoading}>Delete</button>
-                  <button type="button" onClick={() => openAssignStoriesModal(sprint)} class="btn-info btn-sm" disabled={isLoading}>Manage Stories</button>
+                  <button onClick={() => openEditSprintModal(sprint)} class="btn-secondary btn-sm" disabled={isLoading}>Edit</button>
+                  <button onClick={() => handleDeleteSprint(sprint)} class="btn-danger btn-sm" disabled={isLoading}>Delete</button>
+                  <button onClick={() => openAssignStoriesModal(sprint)} class="btn-info btn-sm" disabled={isLoading}>Manage Stories</button>
                 </div>
               )}
             </div>
@@ -292,7 +271,7 @@ export default function SprintsPageIsland(
       )}
 
       {showAssignStoriesModal && selectedSprintForAssignment && (
-        <Modal show={showAssignStoriesModal} onClose={() => !isLoading && setShowAssignStoriesModal(false)} maxWidth="2xl">
+        <Modal show={showAssignStoriesModal} onClose={() => !isLoading && setShowAssignStoriesModal(false)} maxWidth="3xl">
           <div class="p-6">
             <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Manage User Stories for: {selectedSprintForAssignment.name}</h2>
             {error && <div class="alert-danger mb-4">{error}</div>}
@@ -305,28 +284,28 @@ export default function SprintsPageIsland(
                     {availableUserStories.filter(us => us.sprintId !== selectedSprintForAssignment.id).map(us => (
                       <li key={us.id} class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded text-sm text-gray-700 dark:text-gray-300">
                         <span>{us.title} (SP: {us.storyPoints || 'N/A'}) {us.sprintId ? '(In another sprint)' : '(Backlog)'}</span>
-                        <button type="button" onClick={() => handleStoryAssignmentChange(us.id, true)} disabled={isLoading} class="btn-primary btn-xs">Asignar <MaterialSymbol icon="arrow_forward" className="text-sm"/></button>
+                        <button onClick={() => handleStoryAssignmentChange(us.id, true)} disabled={isLoading} class="btn-primary btn-xs">Assign <MaterialSymbol icon="arrow_forward" size="sm"/></button>
                       </li>
                     ))}
-                    {availableUserStories.filter(us => us.sprintId !== selectedSprintForAssignment.id).length === 0 && !isLoading && <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No hay historias disponibles.</p>}
+                    {availableUserStories.filter(us => us.sprintId !== selectedSprintForAssignment.id).length === 0 && !isLoading && <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No available stories.</p>}
                   </ul>
                 </div>
                 <div>
-                  <h3 class="text-lg font-medium mb-2 text-gray-800 dark:text-gray-200">Historias en este Sprint</h3>
+                  <h3 class="text-lg font-medium mb-2 text-gray-800 dark:text-gray-200">Stories in this Sprint</h3>
                   <ul class="h-64 overflow-y-auto border rounded p-2 dark:border-gray-600 space-y-1 bg-gray-50 dark:bg-gray-700">
                     {assignedUserStories.map(us => (
                       <li key={us.id} class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded text-sm text-gray-700 dark:text-gray-300">
-                        <button type="button" onClick={() => handleStoryAssignmentChange(us.id, false)} disabled={isLoading} class="btn-danger btn-xs"><MaterialSymbol icon="arrow_back" className="text-sm"/> Sin Asignar</button>
+                        <button onClick={() => handleStoryAssignmentChange(us.id, false)} disabled={isLoading} class="btn-danger btn-xs"><MaterialSymbol icon="arrow_back" size="sm"/> Unassign</button>
                         <span>{us.title} (SP: {us.storyPoints || 'N/A'})</span>
                       </li>
                     ))}
-                    {assignedUserStories.length === 0 && !isLoading && <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No hay historias asignadas a este sprint.</p>}
+                    {assignedUserStories.length === 0 && !isLoading && <p class="text-sm text-gray-500 dark:text-gray-400 p-2">No stories assigned to this sprint.</p>}
                   </ul>
                 </div>
               </div>
             }
             <div class="flex justify-end mt-6">
-              <button type="button" onClick={() => setShowAssignStoriesModal(false)} disabled={isLoading} class="btn-secondary">Listo</button>
+              <button type="button" onClick={() => setShowAssignStoriesModal(false)} disabled={isLoading} class="btn-secondary">Done</button>
             </div>
           </div>
         </Modal>

@@ -1,5 +1,6 @@
+import { useState } from "preact/hooks";
 import { MaterialSymbol } from "../components/MaterialSymbol.tsx";
-import { DEVELOPER, PROJECT_OWNER, SCRUM_MASTER, ProjectRole } from "../src/types/roles.ts";
+import { DEVELOPER, PROJECT_OWNER, SCRUM_MASTER, ProjectRole } from "../types/roles.ts";
 
 // The first block of interfaces has been removed.
 // The second block (which is the correct one) starts below.
@@ -38,7 +39,7 @@ interface ProjectMembersIslandProps {
   };
 }
 
-export default function ProjectMembersIsland({ project }: ProjectMembersIslandProps) {
+export default function ProjectMembersIsland({ project, currentUser }: ProjectMembersIslandProps) {
   const formatRole = (role: string): string => {
     const roleMap: Record<string, string> = {
       [PROJECT_OWNER]: "Project Owner",
@@ -55,7 +56,7 @@ export default function ProjectMembersIsland({ project }: ProjectMembersIslandPr
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6"> {/* Added mb-6 for spacing */}
         <h1 className="text-2xl font-bold">Miembros del Proyecto: {project.name}</h1>
-        <div className="flex space-x-2"> {/* Wrapper for buttons */}
+        <div class="flex space-x-2"> {/* Wrapper for buttons */}
           {(project.currentUserRole === PROJECT_OWNER || project.currentUserRole === SCRUM_MASTER) && (
             <button
               type="button"
