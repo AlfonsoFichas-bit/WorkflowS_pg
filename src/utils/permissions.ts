@@ -72,3 +72,44 @@ export async function hasProjectPermission(
   }
   return false;
 }
+
+/**
+ * Retrieves the team membership (teamId and role) of a user in a specific project.
+ * Project Owners do not have a teamId via teamMembers table in this model, so returns null for them for teamId.
+ *
+ * @param userId - The ID of the user.
+ * @param projectId - The ID of the project.
+ * @returns An object containing teamId and role, or null if not a team member or project owner.
+ */
+export async function getUserTeamMembershipInProject(
+  userId: number,
+  projectId: number,
+): Promise<{ teamId: number | null; role: ProjectRole } | null> {
+  try {
+    const project = await db
+      .select({ ownerId: projects.ownerId })
+      .from(projects)
+      .where(eq(projects.id, projectId))
+      .limit(1);
+
+    if (project.length > 0 && project[0].ownerId === userId) {
+      return { teamId: null, role: PROJECT_OWNER }; // Project owner isn't in a team via team_members
+    }
+
+    const membership = await db
+      .select({ teamId: teamMembers.teamId, role: teamMembers.role })
+      .from(teamMembers)
+      .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+      .where(and(eq(teams.projectId, projectId), eq(teamMembers.userId, userId)))
+      .limit(1);
+
+    if (membership.length > 0) {
+      return { teamId: membership[0].teamId, role: membership[0].role as ProjectRole };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error in getUserTeamMembershipInProject:", error);
+    return null;
+  }
+}

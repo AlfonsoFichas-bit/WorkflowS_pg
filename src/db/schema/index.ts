@@ -9,3 +9,8 @@ export * from "./comments.ts";
 export * from "./evaluations.ts";
 export * from "./userStories.ts";
 export * from "./rubrics.ts";
+export * from "./milestones.ts";
+export * from "./milestone_user_stories.ts";
+export * from "./milestone_submissions.ts";
+export * from "./milestone_evaluations.ts";
+export * from "./milestone_evaluation_criteria_scores.ts";
