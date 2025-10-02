@@ -3,11 +3,14 @@
 
 import { config } from "../utils/env.ts";
 
+// Check if the connection string contains SSL mode
+const hasSSLMode = config.DATABASE_URL.includes('sslmode=');
+
 // Database configuration with development defaults
 export const databaseConfig = {
   connectionString: config.DATABASE_URL,
   // Add any additional database configuration here
-  ssl: true, // Enable SSL for Neon Tech connection
+  ssl: hasSSLMode ? undefined : config.ENV === "production", // Use SSL mode from connection string if present, otherwise enable only in production
   debug: config.ENV === "development", // Enable debug in development
 };
 

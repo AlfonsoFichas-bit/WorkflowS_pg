@@ -34,10 +34,16 @@ const { Pool } = pg;
 import { databaseConfig } from "../config/database.ts";
 
 // Crear el pool de conexiones
-const pool = new Pool({
+const poolConfig: any = {
   connectionString: databaseConfig.connectionString,
-  ssl: true, // Siempre habilitar SSL para Neon Tech
-});
+};
+
+// Solo agregar la configuración SSL si está definida
+if (databaseConfig.ssl !== undefined) {
+  poolConfig.ssl = databaseConfig.ssl;
+}
+
+const pool = new Pool(poolConfig);
 
 // Crear la instancia de drizzle
 export const db = drizzle(pool, {

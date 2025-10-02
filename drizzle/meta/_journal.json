@@ -15,6 +15,13 @@
       "when": 1749190986921,
       "tag": "0001_oval_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759410062131,
+      "tag": "0002_complex_chameleon",
+      "breakpoints": true
     }
   ]
 }
