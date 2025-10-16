@@ -19,10 +19,14 @@ await initializeAdminUser();
 
 // Registrar un manejador para cerrar la conexión a la base de datos cuando la aplicación se cierre
 Deno.addSignalListener("SIGINT", async () => {
-  console.log("Shutting down...");
-  await closeDatabase();
-  Deno.exit(0);
+	console.log("Shutting down...");
+	await closeDatabase();
+	Deno.exit(0);
 });
 
 // Iniciar el servidor
 await start(manifest, config);
+
+export function add(a: number, b: number): number {
+	return a + b;
+}
